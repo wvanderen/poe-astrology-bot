@@ -22,6 +22,26 @@ from modal import App, Image, asgi_app
 
 from chart_engine import calculate_chart, calculate_transits
 
+HOUSE_SYSTEM_INFO = {
+    "whole_sign": "Whole Sign Houses: The zodiac sign of the Ascendant becomes the 1st house, and each subsequent sign rules the next house. All planets in a given sign belong to that house - this is normal and expected, not a coincidence.",
+    "placidus": "Placidus Houses: Houses are calculated based on the time it takes for the ecliptic to rise through each quadrant, resulting in houses of unequal size.",
+    "equal": "Equal Houses: Each house spans exactly 30 degrees, starting from the Ascendant degree.",
+    "koch": "Koch Houses: A time-based house system that divides the diurnal arc of the Ascendant.",
+    "regiomontanus": "Regiomontanus Houses: Houses are divided by great circles through the celestial equator.",
+    "campanus": "Campanus Houses: Houses are divided by the prime vertical.",
+    "porphyry": "Porphyry Houses: A simple quadrant system with trisected arcs.",
+    "morinus": "Morinus Houses: Houses measured along the celestial equator.",
+}
+
+SIDEREAL_MODE_NAMES = {
+    "lahiri": "Lahiri (Indian National)",
+    "fagan_bradley": "Fagan-Bradley",
+    "raman": "Raman",
+    "krishnamurti": "Krishnamurti",
+    "j2000": "J2000",
+    "jyotish": "Jyotish",
+}
+
 
 def parse_plain_text_birth_data(text: str) -> dict | None:
     """
@@ -412,12 +432,27 @@ Provide a thoughtful, specific answer based on the chart data. Be warm and insig
                 ]
             )
 
+        house_system = chart["meta"].get("house_system", "placidus")
+        zodiac_type = chart["meta"].get("zodiac_type", "tropical")
+        sidereal_mode = chart["meta"].get("sidereal_mode")
+
+        house_info = HOUSE_SYSTEM_INFO.get(
+            house_system, f"{house_system.title()} house system"
+        )
+
+        zodiac_info = f"{zodiac_type.title()} zodiac"
+        if zodiac_type == "sidereal" and sidereal_mode:
+            mode_name = SIDEREAL_MODE_NAMES.get(sidereal_mode, sidereal_mode.title())
+            zodiac_info = f"Sidereal zodiac ({mode_name} ayanamsa)"
+
         return f"""You are an expert Western astrologer with deep knowledge of natal chart interpretation. Provide a warm, nuanced, psychologically insightful reading.
 
 **Birth Information:**
 • Date: {chart["meta"]["date"]}
 • Time: {chart["meta"]["time"]}
 • Location: {chart["meta"]["city"]}
+• Zodiac: {zodiac_info}
+• House System: {house_info}
 
 **Key Placements:**
 • Sun Sign: {chart["planets"]["Sun"]["sign"]}

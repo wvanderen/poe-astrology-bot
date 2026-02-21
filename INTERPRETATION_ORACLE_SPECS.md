@@ -453,13 +453,18 @@ httpx>=0.25.0
 
 ---
 
+## Decisions (Answered)
+
+1. **✅ Deployment platform:** **Modal** - already used for poe-astrology-bot, perfect fit
+2. **✅ Fallback strategy:** **LLM-only response with warning** - if oracle fails, continue with standard LLM interpretation and show warning to user
+3. **✅ Embedding model:** **No preference** - either `text-embedding-ada-002` or `text-embedding-3-small` is fine
+
+---
+
 ## Open Questions
 
-1. **Embedding model:** Use OpenAI's `text-embedding-ada-002` (default) or try `text-embedding-3-small`?
-2. **Batch size for ingest:** 50 (default) or larger for speed?
-3. **Deployment platform:** Modal (recommended) or preference?
-4. **Fallback strategy:** Continue with LLM-only if oracle fails, or show error to user?
-5. **Interpretation attribution:** Show source names (Arroyo, etc.) or aggregate without attribution?
+1. **Batch size for ingest:** 50 (default) or larger for speed?
+2. **Interpretation attribution:** Show source names (Arroyo, etc.) or aggregate without attribution?
 
 ---
 

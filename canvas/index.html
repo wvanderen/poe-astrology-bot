@@ -232,14 +232,18 @@
                 border-radius: 10px;
                 font-size: 0.9rem;
                 z-index: 9999;
-                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s;
                 max-width: 90vw;
                 text-align: center;
                 backdrop-filter: blur(12px);
+                opacity: 0;
+                pointer-events: none;
             }
 
             .toast.show {
                 transform: translateX(-50%) translateY(0);
+                opacity: 1;
+                pointer-events: auto;
             }
 
             /* Loading */
@@ -337,8 +341,13 @@
 
             .results-grid {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 24px;
+            }
+            
+            /* Chart card spans full width */
+            #chart-card {
+                grid-column: 1 / -1;
             }
 
             .card {
@@ -471,13 +480,79 @@
             }
 
             .planet-table .glyph {
-                font-size: 1.1rem;
-                width: 30px;
+                font-size: 1.5rem;
+                width: 40px;
+                text-align: center;
+            }
+
+            .planet-table .sign-glyph {
+                font-size: 1.3rem;
+                margin-right: 6px;
             }
 
             .planet-table .planet-name {
                 color: var(--gold-light);
                 font-weight: 600;
+            }
+
+            /* Aspect Matrix Table */
+            .aspect-matrix {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+
+            .aspect-matrix th {
+                color: var(--text-secondary);
+                font-weight: 400;
+                padding: 4px;
+                font-size: 1.1rem;
+                text-align: center;
+                width: 36px;
+                height: 36px;
+            }
+
+            .aspect-matrix td {
+                width: 36px;
+                height: 36px;
+                text-align: center;
+                vertical-align: middle;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .aspect-matrix td.empty {
+                background: rgba(255, 255, 255, 0.02);
+            }
+
+            .aspect-matrix .aspect-cell {
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+            .aspect-matrix .aspect-conjunction {
+                color: #ffffff;
+            }
+
+            .aspect-matrix .aspect-sextile {
+                color: #5bc0de;
+            }
+
+            .aspect-matrix .aspect-square {
+                color: #ff6b6b;
+            }
+
+            .aspect-matrix .aspect-trine {
+                color: #6bcf6b;
+            }
+
+            .aspect-matrix .aspect-opposition {
+                color: #ffd93d;
+            }
+
+            .aspect-matrix .planet-row-header {
+                font-size: 1.1rem;
+                color: var(--gold-light);
+                text-align: center;
             }
 
             /* New Reading button */
@@ -507,9 +582,6 @@
             /* Responsive */
             @media (max-width: 640px) {
                 .form-grid {
-                    grid-template-columns: 1fr;
-                }
-                .results-grid {
                     grid-template-columns: 1fr;
                 }
 
@@ -648,6 +720,13 @@
                         <div id="planet-positions"></div>
                     </div>
 
+                    <div class="card" id="aspects-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-grip"></i> Aspect Matrix
+                        </div>
+                        <div id="aspect-matrix"></div>
+                    </div>
+
                     <div
                         class="card interpretation-card"
                         id="interpretation-card"
@@ -704,6 +783,22 @@
                 Chiron: "\u26B7",
             };
 
+            const ASPECT_GLYPHS = {
+                conjunction: "\u260C",
+                sextile: "\u26B9",
+                square: "\u25A1",
+                trine: "\u25B3",
+                opposition: "\u260D",
+            };
+
+            const ASPECT_CLASSES = {
+                conjunction: "aspect-conjunction",
+                sextile: "aspect-sextile",
+                square: "aspect-square",
+                trine: "aspect-trine",
+                opposition: "aspect-opposition",
+            };
+
             const SIGN_ORDER = [
                 "Aries",
                 "Taurus",
@@ -757,6 +852,7 @@
                     document.getElementById("results").classList.add("visible");
                     renderChartWheel(chartData);
                     renderPlanetTable(chartData);
+                    renderAspectMatrix(chartData);
                 }
 
                 /* Show any textual interpretation */
@@ -857,6 +953,7 @@
                 document.getElementById("results").classList.remove("visible");
                 document.getElementById("chart-wheel").innerHTML = "";
                 document.getElementById("planet-positions").innerHTML = "";
+                document.getElementById("aspect-matrix").innerHTML = "";
                 document.getElementById("interpretation").innerHTML = "";
                 document.getElementById("interpretation-card").style.display = "none";
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -960,15 +1057,17 @@
             /* ── Render Chart Wheel ── */
             function renderChartWheel(chart) {
                 var container = document.getElementById("chart-wheel");
-                var size = 500;
+                var size = 520;
                 var cx = size / 2;
                 var cy = size / 2;
-                var outerR = 230;
-                var signR = 200;
-                var innerR = 170;
-                var planetR = 135;
+                var outerR = 240;
+                var signOuterR = 220;
+                var signInnerR = 180;
+                var planetR = 150;
+                var aspectInnerR = 95;
 
                 var ascLon = (chart.ascendant && chart.ascendant.longitude) || 0;
+                var mcLon = (chart.midheaven && chart.midheaven.longitude) || 0;
                 var house1 = chart.houses && chart.houses["House 1"];
                 var house1Lon = house1 ? house1.longitude : ascLon;
 
@@ -982,261 +1081,200 @@
 
                 var lines = [];
                 lines.push(
-                    '<svg viewBox="0 0 ' +
-                        size +
-                        " " +
-                        size +
-                        '" xmlns="http://www.w3.org/2000/svg">',
+                    '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">',
                 );
+                
+                /* Style to prevent emoji rendering */
+                lines.push('<style>text{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols",sans-serif;font-variant-emoji:text}</style>');
 
-                /* Background circle fills */
+                /* Outer rim */
                 lines.push(
-                    '<circle cx="' +
-                        cx +
-                        '" cy="' +
-                        cy +
-                        '" r="' +
-                        outerR +
-                        '" fill="rgba(14,14,26,0.6)" stroke="' +
-                        "var(--gold)" +
-                        '" stroke-width="1.5"/>',
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + outerR + '" fill="none" stroke="var(--gold)" stroke-width="2"/>',
                 );
+                
+                /* Sign ring (outer circle of sign band) */
                 lines.push(
-                    '<circle cx="' +
-                        cx +
-                        '" cy="' +
-                        cy +
-                        '" r="' +
-                        innerR +
-                        '" fill="rgba(14,14,26,0.8)" stroke="' +
-                        "var(--gold)" +
-                        '" stroke-width="1"/>',
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + signOuterR + '" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
+                );
+                
+                /* Sign ring (inner circle of sign band) - this is also where house cusps end */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + signInnerR + '" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
+                );
+                
+                /* Inner aspect circle - aspect lines are tangent to this */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + aspectInnerR + '" fill="none" stroke="var(--gold)" stroke-width="0.5" opacity="0.3" stroke-dasharray="3 3"/>',
                 );
 
                 /* Sign divisions and glyphs */
                 for (var i = 0; i < 12; i++) {
                     var a = lonToAngle(i * 30);
-                    var p1 = polar(a, innerR);
+                    
+                    /* Sign division lines across the sign band */
+                    var p1 = polar(a, signInnerR);
                     var p2 = polar(a, outerR);
                     lines.push(
-                        '<line x1="' +
-                            p1.x +
-                            '" y1="' +
-                            p1.y +
-                            '" x2="' +
-                            p2.x +
-                            '" y2="' +
-                            p2.y +
-                            '" stroke="var(--gold)" stroke-width="0.7" opacity="0.5"/>',
+                        '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
                     );
 
+                    /* Sign glyph positioned in middle of sign band */
                     var midA = lonToAngle(i * 30 + 15);
-                    var gPos = polar(midA, signR);
+                    var gPos = polar(midA, (signOuterR + signInnerR) / 2);
+                    var signChar = SIGN_GLYPHS[SIGN_ORDER[i]];
                     lines.push(
-                        '<text x="' +
-                            gPos.x +
-                            '" y="' +
-                            gPos.y +
-                            '" text-anchor="middle" dominant-baseline="central" fill="var(--text-primary)" font-size="15" opacity="0.8">' +
-                            SIGN_GLYPHS[SIGN_ORDER[i]] +
+                        '<text x="' + gPos.x + '" y="' + gPos.y + '" text-anchor="middle" dominant-baseline="central" fill="var(--text-primary)" font-size="20">' +
+                            signChar + '\uFE0E' +
                             "</text>",
                     );
                 }
 
-                /* House cusps */
+                /* House cusps - extending from center all the way to sign inner circle */
+                var angularHouses = [1, 4, 7, 10];
+                
                 for (var h = 1; h <= 12; h++) {
                     var house = chart.houses && chart.houses["House " + h];
-                    if (!house) {
-                        continue;
-                    }
+                    if (!house) continue;
+                    
                     var ha = lonToAngle(house.longitude);
-                    var hp1 = polar(ha, 38);
-                    var hp2 = polar(ha, innerR);
-                    var isAngular = h === 1 || h === 4 || h === 7 || h === 10;
+                    var isAngular = angularHouses.indexOf(h) !== -1;
+                    var hp2 = polar(ha, signInnerR);
+                    var hp1 = polar(ha, 5);
+                    
                     lines.push(
-                        '<line x1="' +
-                            hp1.x +
-                            '" y1="' +
-                            hp1.y +
-                            '" x2="' +
-                            hp2.x +
-                            '" y2="' +
-                            hp2.y +
-                            '" stroke="' +
+                        '<line x1="' + hp1.x + '" y1="' + hp1.y + '" x2="' + hp2.x + '" y2="' + hp2.y + '" stroke="' +
                             (isAngular ? "var(--gold)" : "var(--text-muted)") +
-                            '" stroke-width="' +
-                            (isAngular ? 1.4 : 0.5) +
-                            '"' +
-                            (isAngular ? "" : ' stroke-dasharray="3 3"') +
-                            "/>",
+                            '" stroke-width="' + (isAngular ? 2 : 0.8) + '"' +
+                            (isAngular ? "" : ' opacity="0.4"') + "/>",
                     );
                 }
 
-                /* Ascendant marker (if different from House 1 cusp) */
-                var ascDiff = Math.abs(ascLon - house1Lon);
-                if (ascDiff > 0.5 && ascDiff < 359.5) {
-                    var ascA = lonToAngle(ascLon);
-                    var ascP1 = polar(ascA, 30);
-                    var ascP2 = polar(ascA, 50);
-                    lines.push(
-                        '<line x1="' +
-                            ascP1.x +
-                            '" y1="' +
-                            ascP1.y +
-                            '" x2="' +
-                            ascP2.x +
-                            '" y2="' +
-                            ascP2.y +
-                            '" stroke="var(--gold-light)" stroke-width="2.5"/>',
-                    );
-                    var ascLabel = polar(ascA, 20);
-                    lines.push(
-                        '<text x="' +
-                            ascLabel.x +
-                            '" y="' +
-                            ascLabel.y +
-                            '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-light)" font-size="10" font-weight="600">Asc</text>',
-                    );
-                }
+                /* Angle markers: Asc, Dsc, MC, IC - full length lines like angular house cusps */
+                var anglePositions = [
+                    { lon: ascLon, label: "Asc", color: "var(--gold-light)" },
+                    { lon: (ascLon + 180) % 360, label: "Dsc", color: "var(--gold-light)" },
+                    { lon: mcLon, label: "MC", color: "var(--gold-accent)" },
+                    { lon: (mcLon + 180) % 360, label: "IC", color: "var(--gold-accent)" }
+                ];
 
-                /* Descendant marker */
-                var descLon = (ascLon + 180) % 360;
-                var descDiff = Math.abs(descLon - house1Lon);
-                if (descDiff > 0.5 && descDiff < 359.5) {
-                    var descA = lonToAngle(descLon);
-                    var descP1 = polar(descA, 30);
-                    var descP2 = polar(descA, 50);
+                anglePositions.forEach(function(angle) {
+                    var a = lonToAngle(angle.lon);
+                    var p1 = polar(a, 5);
+                    var p2 = polar(a, signInnerR);
+                    var labelPos = polar(a, signInnerR - 15);
+                    
                     lines.push(
-                        '<line x1="' +
-                            descP1.x +
-                            '" y1="' +
-                            descP1.y +
-                            '" x2="' +
-                            descP2.x +
-                            '" y2="' +
-                            descP2.y +
-                            '" stroke="var(--gold-light)" stroke-width="2"/>',
+                        '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="' + angle.color + '" stroke-width="2"/>',
                     );
-                    var descLabel = polar(descA, 20);
                     lines.push(
-                        '<text x="' +
-                            descLabel.x +
-                            '" y="' +
-                            descLabel.y +
-                            '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-light)" font-size="10" font-weight="600">Dsc</text>',
+                        '<text x="' + labelPos.x + '" y="' + labelPos.y + '" text-anchor="middle" dominant-baseline="central" fill="' + angle.color + '" font-size="11" font-weight="700">' + angle.label + '</text>',
                     );
-                }
+                });
 
-                /* Midheaven marker */
-                var mcLon = (chart.midheaven && chart.midheaven.longitude) || 0;
-                var mcA = lonToAngle(mcLon);
-                var mcP1 = polar(mcA, 30);
-                var mcP2 = polar(mcA, 50);
-                lines.push(
-                    '<line x1="' +
-                        mcP1.x +
-                        '" y1="' +
-                        mcP1.y +
-                        '" x2="' +
-                        mcP2.x +
-                        '" y2="' +
-                        mcP2.y +
-                        '" stroke="var(--gold-accent)" stroke-width="2.5"/>',
-                );
-                var mcLabel = polar(mcA, 20);
-                lines.push(
-                    '<text x="' +
-                        mcLabel.x +
-                        '" y="' +
-                        mcLabel.y +
-                        '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-accent)" font-size="10" font-weight="600">MC</text>',
-                );
-
-                /* IC marker (opposite Midheaven) */
-                var icLon = (mcLon + 180) % 360;
-                var icA = lonToAngle(icLon);
-                var icP1 = polar(icA, 30);
-                var icP2 = polar(icA, 50);
-                lines.push(
-                    '<line x1="' +
-                        icP1.x +
-                        '" y1="' +
-                        icP1.y +
-                        '" x2="' +
-                        icP2.x +
-                        '" y2="' +
-                        icP2.y +
-                        '" stroke="var(--gold-accent)" stroke-width="2"/>',
-                );
-                var icLabel = polar(icA, 20);
-                lines.push(
-                    '<text x="' +
-                        icLabel.x +
-                        '" y="' +
-                        icLabel.y +
-                        '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-accent)" font-size="10" font-weight="600">IC</text>',
-                );
-
-                /* Aspect lines */
+                /* Aspect lines - drawn tangent to inner circle with spokes to planets */
                 var aspectColors = {
                     conjunction: "#ffffff",
-                    trine: "#5cb85c",
+                    trine: "#6bcf6b",
                     sextile: "#5bc0de",
-                    square: "#d9534f",
-                    opposition: "#f0ad4e",
+                    square: "#ff6b6b",
+                    opposition: "#ffd93d",
                 };
 
                 if (chart.aspects) {
+                    /* Draw aspect lines on the inner aspect circle */
                     for (var ai = 0; ai < chart.aspects.length; ai++) {
                         var asp = chart.aspects[ai];
                         var pl1 = chart.planets[asp.planet1];
                         var pl2 = chart.planets[asp.planet2];
-                        if (!pl1 || !pl2) {
-                            continue;
-                        }
+                        if (!pl1 || !pl2) continue;
+                        
                         var aa1 = lonToAngle(pl1.longitude);
                         var aa2 = lonToAngle(pl2.longitude);
-                        var ap1 = polar(aa1, planetR - 20);
-                        var ap2 = polar(aa2, planetR - 20);
+                        var ap1 = polar(aa1, aspectInnerR);
+                        var ap2 = polar(aa2, aspectInnerR);
+                        var color = aspectColors[asp.aspect] || "#888";
+                        var opacity = asp.aspect === 'conjunction' ? 0.85 : 0.5;
+                        var width = asp.aspect === 'conjunction' || asp.aspect === 'square' ? 1.2 : 0.7;
+                        
                         lines.push(
-                            '<line x1="' +
-                                ap1.x +
-                                '" y1="' +
-                                ap1.y +
-                                '" x2="' +
-                                ap2.x +
-                                '" y2="' +
-                                ap2.y +
-                                '" stroke="' +
-                                (aspectColors[asp.aspect] || "#555") +
-                                '" stroke-width="0.6" opacity="0.35"/>',
+                            '<line x1="' + ap1.x + '" y1="' + ap1.y + '" x2="' + ap2.x + '" y2="' + ap2.y + '" stroke="' + color + '" stroke-width="' + width + '" opacity="' + opacity + '"/>',
                         );
                     }
+                    
+                    /* Draw spokes from inner aspect circle to planet positions */
+                    var planetsWithAspects = new Set();
+                    for (var aj = 0; aj < chart.aspects.length; aj++) {
+                        planetsWithAspects.add(chart.aspects[aj].planet1);
+                        planetsWithAspects.add(chart.aspects[aj].planet2);
+                    }
+                    
+                    planetsWithAspects.forEach(function(pName) {
+                        var pData = chart.planets[pName];
+                        if (!pData) return;
+                        var pa = lonToAngle(pData.longitude);
+                        var innerPos = polar(pa, aspectInnerR);
+                        var outerPos = polar(pa, planetR);
+                        lines.push(
+                            '<line x1="' + innerPos.x + '" y1="' + innerPos.y + '" x2="' + outerPos.x + '" y2="' + outerPos.y + '" stroke="var(--text-muted)" stroke-width="0.5" opacity="0.4"/>',
+                        );
+                    });
                 }
 
-                /* Planets */
+                /* Planets - with collision detection to avoid overlap */
                 if (chart.planets) {
                     var planetKeys = Object.keys(chart.planets);
+                    var positionedPlanets = [];
+                    var minAngularDist = 12 * (Math.PI / 180); /* Minimum 12 degrees in radians */
+                    var radiusStep = 18; /* How much to adjust radius per collision */
+                    var maxRadiusOffset = 3; /* Maximum radius levels */
+                    
+                    /* Sort planets by longitude for consistent positioning */
+                    planetKeys.sort(function(a, b) {
+                        return chart.planets[a].longitude - chart.planets[b].longitude;
+                    });
+                    
                     for (var pi = 0; pi < planetKeys.length; pi++) {
                         var pName = planetKeys[pi];
                         var pData = chart.planets[pName];
-                        var pa = lonToAngle(pData.longitude);
-                        var pPos = polar(pa, planetR);
-                        /* glow */
+                        var pAngle = lonToAngle(pData.longitude);
+                        var pLon = pData.longitude;
+                        
+                        /* Check for collisions with already positioned planets */
+                        var radiusLevel = 0;
+                        for (var pj = 0; pj < positionedPlanets.length; pj++) {
+                            var other = positionedPlanets[pj];
+                            /* Calculate angular distance (shortest path around circle) */
+                            var angleDiff = Math.abs(pAngle - other.angle);
+                            if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
+                            
+                            if (angleDiff < minAngularDist && radiusLevel === other.radiusLevel) {
+                                /* Collision detected at this radius level, try next level */
+                                radiusLevel++;
+                                if (radiusLevel > maxRadiusOffset) radiusLevel = maxRadiusOffset;
+                                /* Re-check from beginning with new radius level */
+                                pj = -1;
+                            }
+                        }
+                        
+                        var finalRadius = planetR - (radiusLevel * radiusStep);
+                        var pPos = polar(pAngle, finalRadius);
+                        positionedPlanets.push({ name: pName, angle: pAngle, longitude: pLon, radiusLevel: radiusLevel });
+                        
+                        var glyph = PLANET_GLYPHS[pName] || pName.charAt(0);
+                        var deg = pData.degree != null ? pData.degree : pData.longitude % 30;
+                        var degStr = Math.floor(deg) + "°";
+                        
+                        /* Planet glyph - large and clear, with variation selector */
                         lines.push(
-                            '<circle cx="' +
-                                pPos.x +
-                                '" cy="' +
-                                pPos.y +
-                                '" r="12" fill="rgba(212,168,67,0.08)"/>',
+                            '<text x="' + pPos.x + '" y="' + (pPos.y - 4) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="22" font-weight="500">' +
+                                glyph + '\uFE0E' +
+                                "</text>",
                         );
+                        
+                        /* Degree label */
                         lines.push(
-                            '<text x="' +
-                                pPos.x +
-                                '" y="' +
-                                pPos.y +
-                                '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">' +
-                                (PLANET_GLYPHS[pName] || pName.charAt(0)) +
+                            '<text x="' + pPos.x + '" y="' + (pPos.y + 12) + '" text-anchor="middle" dominant-baseline="central" fill="var(--text-secondary)" font-size="9" font-weight="400">' +
+                                degStr +
                                 "</text>",
                         );
                     }
@@ -1277,8 +1315,7 @@
                             name +
                             "</td>" +
                             "<td>" +
-                            (SIGN_GLYPHS[sign] || "") +
-                            " " +
+                            '<span class="sign-glyph">' + (SIGN_GLYPHS[sign] || "") + '</span> ' +
                             sign +
                             "</td>" +
                             "<td>" +
@@ -1295,6 +1332,83 @@
             function signFromLongitude(lon) {
                 var idx = Math.floor(lon / 30) % 12;
                 return SIGN_ORDER[idx];
+            }
+
+            /* ── Render Aspect Matrix ── */
+            function renderAspectMatrix(chart) {
+                var container = document.getElementById("aspect-matrix");
+                if (!chart.planets || !chart.aspects) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary)">No aspect data available.</p>';
+                    return;
+                }
+
+                // Get planets in consistent order
+                var planetNames = [
+                    "Sun", "Moon", "Mercury", "Venus", "Mars", 
+                    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", 
+                    "North Node", "Chiron"
+                ].filter(function(p) { return chart.planets[p]; });
+
+                // Build lookup: planet pair -> aspect
+                var aspectLookup = {};
+                for (var i = 0; i < chart.aspects.length; i++) {
+                    var a = chart.aspects[i];
+                    var key1 = a.planet1 + "-" + a.planet2;
+                    var key2 = a.planet2 + "-" + a.planet1;
+                    aspectLookup[key1] = a;
+                    aspectLookup[key2] = a;
+                }
+
+                // Build table
+                var html = ['<table class="aspect-matrix">'];
+                
+                // Header row with planet glyphs
+                html.push('<tr><th></th>');
+                for (var h = 0; h < planetNames.length; h++) {
+                    var glyph = PLANET_GLYPHS[planetNames[h]] || "";
+                    html.push('<th>' + glyph + "</th>");
+                }
+                html.push("</tr>");
+
+                // Data rows
+                for (var r = 0; r < planetNames.length; r++) {
+                    var rowPlanet = planetNames[r];
+                    html.push('<tr>');
+                    
+                    // Row header (planet glyph)
+                    var rowGlyph = PLANET_GLYPHS[rowPlanet] || "";
+                    html.push('<th class="planet-row-header">' + rowGlyph + "</th>");
+
+                    for (var c = 0; c < planetNames.length; c++) {
+                        var colPlanet = planetNames[c];
+                        
+                        if (c >= r) {
+                            // Upper triangle: empty
+                            html.push('<td class="empty"></td>');
+                        } else {
+                            // Lower triangle: check for aspect
+                            var key = rowPlanet + "-" + colPlanet;
+                            var aspect = aspectLookup[key];
+                            
+                            if (aspect) {
+                                var glyph = ASPECT_GLYPHS[aspect.aspect] || "";
+                                var aspectClass = ASPECT_CLASSES[aspect.aspect] || "";
+                                html.push(
+                                    '<td class="aspect-cell ' + aspectClass + '">' +
+                                    glyph + "</td>"
+                                );
+                            } else {
+                                html.push('<td></td>');
+                            }
+                        }
+                    }
+                    
+                    html.push("</tr>");
+                }
+
+                html.push("</table>");
+                container.innerHTML = html.join("");
             }
 
             /* ── Allow Enter key to submit ── */
