@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Astrology Chart Calculator</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
+        <style>
+            :root {
+                --gold: #d4a843;
+                --gold-light: #f0dca0;
+                --gold-dim: rgba(212, 168, 67, 0.25);
+                --gold-accent: #ffeaa7;
+                --bg-deep: #0e0e1a;
+                --bg-card: rgba(255, 255, 255, 0.04);
+                --bg-card-hover: rgba(255, 255, 255, 0.07);
+                --border: rgba(212, 168, 67, 0.2);
+                --text-primary: #eae0cc;
+                --text-secondary: #9a917e;
+                --text-muted: #6b6458;
+                --error-bg: rgba(220, 60, 60, 0.12);
+                --error-border: rgba(220, 60, 60, 0.4);
+                --error-text: #e87070;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Nunito Sans", sans-serif;
+                background: var(--bg-deep);
+                color: var(--text-primary);
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background:
+                    radial-gradient(
+                        ellipse 80% 60% at 20% 10%,
+                        rgba(90, 60, 20, 0.15),
+                        transparent
+                    ),
+                    radial-gradient(
+                        ellipse 60% 50% at 80% 90%,
+                        rgba(40, 30, 80, 0.2),
+                        transparent
+                    );
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .page-wrapper {
+                position: relative;
+                z-index: 1;
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 24px 16px 60px;
+            }
+
+            /* Header */
+            .header {
+                text-align: center;
+                margin-bottom: 36px;
+                animation: fadeDown 0.6s ease-out;
+            }
+
+            .header h1 {
+                font-family: "Cormorant Garamond", serif;
+                font-weight: 600;
+                font-size: 2.4rem;
+                letter-spacing: 0.04em;
+                background: linear-gradient(
+                    135deg,
+                    var(--gold) 0%,
+                    var(--gold-light) 55%,
+                    var(--gold) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                margin-top: 6px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                font-weight: 300;
+            }
+
+            /* Form Card */
+            .birth-form {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 28px 24px;
+                margin-bottom: 28px;
+                backdrop-filter: blur(6px);
+                animation: fadeUp 0.5s ease-out 0.15s both;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+                margin-bottom: 24px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+            label {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--gold);
+                margin-bottom: 6px;
+                letter-spacing: 0.04em;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="time"],
+            select {
+                padding: 12px 14px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: rgba(0, 0, 0, 0.35);
+                color: var(--text-primary);
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 16px;
+                transition:
+                    border-color 0.25s,
+                    box-shadow 0.25s;
+            }
+
+            input:focus,
+            select:focus {
+                outline: none;
+                border-color: var(--gold);
+                box-shadow: 0 0 0 3px var(--gold-dim);
+            }
+
+            input::placeholder {
+                color: var(--text-muted);
+            }
+
+            select {
+                cursor: pointer;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a917e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 14px center;
+                padding-right: 40px;
+            }
+
+            select option {
+                background: var(--bg-deep);
+                color: var(--text-primary);
+            }
+
+            /* colorScheme for dark date/time pickers */
+            input[type="date"],
+            input[type="time"] {
+                color-scheme: dark;
+            }
+
+            .btn-primary {
+                width: 100%;
+                padding: 14px;
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.15rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--bg-deep);
+                background: linear-gradient(135deg, var(--gold), #b8912e);
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s,
+                    opacity 0.2s;
+            }
+
+            .btn-primary:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 24px rgba(212, 168, 67, 0.3);
+            }
+
+            .btn-primary:active:not(:disabled) {
+                transform: translateY(0);
+            }
+
+            .btn-primary:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            /* Toast Notification */
+            .toast {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-120%);
+                background: var(--error-bg);
+                border: 1px solid var(--error-border);
+                color: var(--error-text);
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 0.9rem;
+                z-index: 9999;
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                max-width: 90vw;
+                text-align: center;
+                backdrop-filter: blur(12px);
+            }
+
+            .toast.show {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            /* Loading */
+            .loading-section {
+                display: none;
+                text-align: center;
+                padding: 48px 20px;
+                animation: fadeUp 0.4s ease-out;
+            }
+
+            .loading-section.visible {
+                display: block;
+            }
+
+            .orbit-spinner {
+                width: 64px;
+                height: 64px;
+                margin: 0 auto 20px;
+                position: relative;
+            }
+
+            .orbit-spinner .ring {
+                position: absolute;
+                inset: 0;
+                border: 2px solid transparent;
+                border-top-color: var(--gold);
+                border-radius: 50%;
+                animation: orbitSpin 1.4s linear infinite;
+            }
+
+            .orbit-spinner .ring:nth-child(2) {
+                inset: 8px;
+                border-top-color: var(--gold-light);
+                animation-duration: 1.8s;
+                animation-direction: reverse;
+            }
+
+            .orbit-spinner .ring:nth-child(3) {
+                inset: 16px;
+                border-top-color: var(--text-secondary);
+                animation-duration: 2.2s;
+            }
+
+            .orbit-spinner .dot {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 6px;
+                height: 6px;
+                margin: -3px;
+                background: var(--gold);
+                border-radius: 50%;
+            }
+
+            @keyframes orbitSpin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loading-text {
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+            }
+
+            .loading-text .dots::after {
+                content: "";
+                animation: dots 1.4s steps(4) infinite;
+            }
+
+            @keyframes dots {
+                0% {
+                    content: "";
+                }
+                25% {
+                    content: ".";
+                }
+                50% {
+                    content: "..";
+                }
+                75% {
+                    content: "...";
+                }
+            }
+
+            /* Results */
+            .results-section {
+                display: none;
+                animation: fadeUp 0.5s ease-out;
+            }
+
+            .results-section.visible {
+                display: block;
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            .card {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 24px;
+                backdrop-filter: blur(6px);
+            }
+
+            .card-title {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: var(--gold);
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .card-title i {
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
+
+            /* Chart Wheel */
+            #chart-wheel svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            /* Interpretation */
+            .interpretation-card {
+                grid-column: 1 / -1;
+            }
+
+            .interpretation-content {
+                color: var(--text-primary);
+                line-height: 1.75;
+                font-size: 0.95rem;
+            }
+
+            .interpretation-content h1,
+            .interpretation-content h2,
+            .interpretation-content h3 {
+                font-family: "Cormorant Garamond", serif;
+                color: var(--gold);
+                margin: 20px 0 8px;
+            }
+
+            .interpretation-content h1 {
+                font-size: 1.4rem;
+            }
+            .interpretation-content h2 {
+                font-size: 1.2rem;
+            }
+            .interpretation-content h3 {
+                font-size: 1.05rem;
+            }
+
+            .interpretation-content p {
+                margin-bottom: 12px;
+            }
+
+            .interpretation-content strong {
+                color: var(--gold-light);
+            }
+
+            .interpretation-content ul,
+            .interpretation-content ol {
+                margin: 8px 0 12px 20px;
+            }
+
+            .interpretation-content li {
+                margin-bottom: 4px;
+            }
+
+            .interpretation-content em {
+                color: var(--text-secondary);
+                font-style: italic;
+            }
+
+            .interpretation-content code {
+                background: rgba(255, 255, 255, 0.06);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.88em;
+            }
+
+            .streaming-cursor::after {
+                content: "▍";
+                animation: blink 0.8s steps(2) infinite;
+                color: var(--gold);
+                margin-left: 2px;
+            }
+
+            @keyframes blink {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+            }
+
+            /* Planet Table */
+            .planet-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.88rem;
+            }
+
+            .planet-table th {
+                text-align: left;
+                color: var(--text-secondary);
+                font-weight: 400;
+                padding: 6px 8px;
+                border-bottom: 1px solid var(--border);
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+
+            .planet-table td {
+                padding: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+
+            .planet-table .glyph {
+                font-size: 1.1rem;
+                width: 30px;
+            }
+
+            .planet-table .planet-name {
+                color: var(--gold-light);
+                font-weight: 600;
+            }
+
+            /* New Reading button */
+            .btn-secondary {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 24px;
+                padding: 10px 20px;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.88rem;
+                color: var(--gold);
+                background: transparent;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                cursor: pointer;
+                transition:
+                    background 0.2s,
+                    border-color 0.2s;
+            }
+
+            .btn-secondary:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            /* Responsive */
+            @media (max-width: 640px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+                .results-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 1.8rem;
+                }
+                .page-wrapper {
+                    padding: 16px 12px 48px;
+                }
+                .birth-form {
+                    padding: 20px 16px;
+                }
+                .card {
+                    padding: 18px 14px;
+                }
+            }
+
+            /* Animations */
+            @keyframes fadeDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-14px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(14px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <!-- Header -->
+            <div class="header">
+                <h1>Natal Chart Reading</h1>
+                <p>Powered by PoeAstrologyBot</p>
+            </div>
+
+            <!-- Birth Data Form -->
+            <div class="birth-form" id="birth-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="birth-date">Birth Date</label>
+                        <input type="date" id="birth-date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="birth-time">Birth Time</label>
+                        <input type="time" id="birth-time" required />
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="birth-city">Birth City</label>
+                        <input
+                            type="text"
+                            id="birth-city"
+                            placeholder="e.g. Austin, TX  or  Paris, France"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="house-system">House System</label>
+                        <select id="house-system">
+                            <option value="placidus">Placidus</option>
+                            <option value="whole_sign">Whole Sign</option>
+                            <option value="equal">Equal</option>
+                            <option value="koch">Koch</option>
+                            <option value="regiomontanus">Regiomontanus</option>
+                            <option value="campanus">Campanus</option>
+                            <option value="porphyry">Porphyry</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="zodiac-type">Zodiac</label>
+                        <select id="zodiac-type">
+                            <option value="tropical">Tropical (Western)</option>
+                            <option value="sidereal">Sidereal (Vedic)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width" id="sidereal-mode-group" style="display: none;">
+                        <label for="sidereal-mode">Sidereal Ayanamsa</label>
+                        <select id="sidereal-mode">
+                            <option value="lahiri">Lahiri (Vedic standard)</option>
+                            <option value="fagan_bradley">Fagan-Bradley</option>
+                            <option value="raman">Raman</option>
+                            <option value="krishnamurti">Krishnamurti</option>
+                            <option value="jyotish">Jyotish (J2000)</option>
+                        </select>
+                    </div>
+                </div>
+                <button
+                    class="btn-primary"
+                    id="calculate-btn"
+                    onclick="submitBirthData()"
+                >
+                    Cast My Chart
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-section" id="loading">
+                <div class="orbit-spinner">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="dot"></div>
+                </div>
+                <p class="loading-text">
+                    Consulting the stars<span class="dots"></span>
+                </p>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="results">
+                <div class="results-grid">
+                    <div class="card" id="chart-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-circle-nodes"></i> Natal Chart
+                        </div>
+                        <div id="chart-wheel"></div>
+                    </div>
+
+                    <div class="card" id="planets-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-sun"></i> Planetary Positions
+                        </div>
+                        <div id="planet-positions"></div>
+                    </div>
+
+                    <div
+                        class="card interpretation-card"
+                        id="interpretation-card"
+                        style="display: none"
+                    >
+                        <div class="card-title">
+                            <i class="fa-solid fa-scroll"></i> Interpretation
+                        </div>
+                        <div class="interpretation-content" id="interpretation"></div>
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="resetForm()">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> New Reading
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+
+        <!-- Markdown parser -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+        <script>
+            /* ── Glyph Maps ── */
+            const SIGN_GLYPHS = {
+                Aries: "\u2648",
+                Taurus: "\u2649",
+                Gemini: "\u264A",
+                Cancer: "\u264B",
+                Leo: "\u264C",
+                Virgo: "\u264D",
+                Libra: "\u264E",
+                Scorpio: "\u264F",
+                Sagittarius: "\u2650",
+                Capricorn: "\u2651",
+                Aquarius: "\u2652",
+                Pisces: "\u2653",
+            };
+
+            const PLANET_GLYPHS = {
+                Sun: "\u2609",
+                Moon: "\u263D",
+                Mercury: "\u263F",
+                Venus: "\u2640",
+                Mars: "\u2642",
+                Jupiter: "\u2643",
+                Saturn: "\u2644",
+                Uranus: "\u2645",
+                Neptune: "\u2646",
+                Pluto: "\u2647",
+                "North Node": "\u260A",
+                Chiron: "\u26B7",
+            };
+
+            const SIGN_ORDER = [
+                "Aries",
+                "Taurus",
+                "Gemini",
+                "Cancer",
+                "Leo",
+                "Virgo",
+                "Libra",
+                "Scorpio",
+                "Sagittarius",
+                "Capricorn",
+                "Aquarius",
+                "Pisces",
+            ];
+
+            /* ── Toast helper (replaces alert) ── */
+            function showToast(msg, duration) {
+                duration = duration || 3500;
+                var el = document.getElementById("toast");
+                el.textContent = msg;
+                el.classList.add("show");
+                setTimeout(function () {
+                    el.classList.remove("show");
+                }, duration);
+            }
+
+            /* ── Register the Poe response handler ── */
+            window.Poe.registerHandler("astro-handler", function (result) {
+                var msg = result.responses[0];
+                if (!msg) {
+                    return;
+                }
+
+                if (msg.status === "error") {
+                    document.getElementById("loading").classList.remove("visible");
+                    showToast(
+                        "Error from bot: " + (msg.statusText || "Unknown error"),
+                        5000,
+                    );
+                    document.getElementById("calculate-btn").disabled = false;
+                    return;
+                }
+
+                /* Try to extract structured chart JSON from the response */
+                var content = msg.content || "";
+                var chartData = extractChartData(content);
+
+                if (chartData) {
+                    /* We got chart data — render visuals */
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("results").classList.add("visible");
+                    renderChartWheel(chartData);
+                    renderPlanetTable(chartData);
+                }
+
+                /* Show any textual interpretation */
+                var textPart = stripJsonBlock(content);
+                if (textPart.trim()) {
+                    var interpCard = document.getElementById("interpretation-card");
+                    var interpEl = document.getElementById("interpretation");
+                    interpCard.style.display = "";
+
+                    if (msg.status === "incomplete") {
+                        interpEl.innerHTML = marked.parse(textPart);
+                        interpEl.classList.add("streaming-cursor");
+                    } else {
+                        interpEl.innerHTML = marked.parse(textPart);
+                        interpEl.classList.remove("streaming-cursor");
+                    }
+                }
+
+                if (msg.status === "complete") {
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("results").classList.add("visible");
+                    document.getElementById("calculate-btn").disabled = false;
+
+                    /* If no chart data was found at all, still show the text */
+                    if (!chartData) {
+                        var interpCard2 =
+                            document.getElementById("interpretation-card");
+                        var interpEl2 = document.getElementById("interpretation");
+                        interpCard2.style.display = "";
+                        interpEl2.innerHTML = marked.parse(content);
+                        interpEl2.classList.remove("streaming-cursor");
+                        /* hide the chart & planet cards since no data */
+                        document.getElementById("chart-card").style.display = "none";
+                        document.getElementById("planets-card").style.display = "none";
+                    }
+                }
+            });
+
+            /* ── Submit birth data to PoeAstrologyBot ── */
+            async function submitBirthData() {
+                var date = document.getElementById("birth-date").value;
+                var time = document.getElementById("birth-time").value;
+                var city = document.getElementById("birth-city").value.trim();
+                var houseSystem = document.getElementById("house-system").value;
+                var zodiacType = document.getElementById("zodiac-type").value;
+                var siderealMode = document.getElementById("sidereal-mode").value;
+
+                if (!date || !time || !city) {
+                    showToast("Please fill in all fields");
+                    return;
+                }
+
+                /* Reset state */
+                document.getElementById("calculate-btn").disabled = true;
+                document.getElementById("loading").classList.add("visible");
+                document.getElementById("results").classList.remove("visible");
+                document.getElementById("interpretation-card").style.display = "none";
+                document.getElementById("interpretation").innerHTML = "";
+                document.getElementById("chart-card").style.display = "";
+                document.getElementById("planets-card").style.display = "";
+
+                var birthData = {
+                    type: "birth_data",
+                    date: date,
+                    time: time,
+                    city: city,
+                    house_system: houseSystem,
+                    zodiac_type: zodiacType,
+                };
+                
+                if (zodiacType === "sidereal") {
+                    birthData.sidereal_mode = siderealMode;
+                }
+
+                try {
+                    await window.Poe.sendUserMessage(
+                        "@PoeAstrologyBot " + JSON.stringify(birthData),
+                        {
+                            handler: "astro-handler",
+                            stream: true,
+                            openChat: false,
+                            parameters: {},
+                        }
+                    );
+                } catch (err) {
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("calculate-btn").disabled = false;
+                    var errMsg =
+                        err && err.errorType
+                            ? "Could not send message (" + err.errorType + ")"
+                            : "Could not send message. Please try again.";
+                    showToast(errMsg, 5000);
+                }
+            }
+
+            /* ── Reset ── */
+            function resetForm() {
+                document.getElementById("results").classList.remove("visible");
+                document.getElementById("chart-wheel").innerHTML = "";
+                document.getElementById("planet-positions").innerHTML = "";
+                document.getElementById("interpretation").innerHTML = "";
+                document.getElementById("interpretation-card").style.display = "none";
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            /* ── JSON extraction ── */
+            function extractChartData(text) {
+                /* Try fenced code block first */
+                var fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+                var jsonStr = fenced ? fenced[1].trim() : null;
+
+                if (jsonStr) {
+                    try {
+                        var parsed = JSON.parse(jsonStr);
+                        return normaliseChart(parsed);
+                    } catch (_) {
+                        /* fall through */
+                    }
+                }
+
+                /* Try to find a top-level JSON object */
+                var braceStart = text.indexOf("{");
+                if (braceStart !== -1) {
+                    var depth = 0;
+                    var braceEnd = -1;
+                    for (var i = braceStart; i < text.length; i++) {
+                        if (text[i] === "{") {
+                            depth++;
+                        }
+                        if (text[i] === "}") {
+                            depth--;
+                        }
+                        if (depth === 0) {
+                            braceEnd = i;
+                            break;
+                        }
+                    }
+                    if (braceEnd !== -1) {
+                        try {
+                            var parsed2 = JSON.parse(
+                                text.substring(braceStart, braceEnd + 1),
+                            );
+                            return normaliseChart(parsed2);
+                        } catch (_) {
+                            /* not valid JSON */
+                        }
+                    }
+                }
+                return null;
+            }
+
+            /* Accept multiple shapes the bot might return */
+            function normaliseChart(obj) {
+                if (obj.chart && obj.chart.planets) {
+                    return obj.chart;
+                }
+                if (obj.planets) {
+                    return obj;
+                }
+                if (obj.data && obj.data.planets) {
+                    return obj.data;
+                }
+                return null;
+            }
+
+            /* Strip the JSON block from the text to isolate interpretation prose */
+            function stripJsonBlock(text) {
+                var stripped = text.replace(/```(?:json)?[\s\S]*?```/g, "");
+                /* Also strip any bare top-level JSON object */
+                var braceStart = stripped.indexOf("{");
+                if (braceStart !== -1) {
+                    var depth = 0;
+                    var braceEnd = -1;
+                    for (var i = braceStart; i < stripped.length; i++) {
+                        if (stripped[i] === "{") {
+                            depth++;
+                        }
+                        if (stripped[i] === "}") {
+                            depth--;
+                        }
+                        if (depth === 0) {
+                            braceEnd = i;
+                            break;
+                        }
+                    }
+                    if (braceEnd !== -1) {
+                        /* Only strip if it actually parsed as JSON (not random prose braces) */
+                        try {
+                            JSON.parse(stripped.substring(braceStart, braceEnd + 1));
+                            stripped =
+                                stripped.substring(0, braceStart) +
+                                stripped.substring(braceEnd + 1);
+                        } catch (_) {
+                            /* leave it */
+                        }
+                    }
+                }
+                return stripped;
+            }
+
+            /* ── Render Chart Wheel ── */
+            function renderChartWheel(chart) {
+                var container = document.getElementById("chart-wheel");
+                var size = 500;
+                var cx = size / 2;
+                var cy = size / 2;
+                var outerR = 230;
+                var signR = 200;
+                var innerR = 170;
+                var planetR = 135;
+
+                var ascLon = (chart.ascendant && chart.ascendant.longitude) || 0;
+                var house1 = chart.houses && chart.houses["House 1"];
+                var house1Lon = house1 ? house1.longitude : ascLon;
+
+                function lonToAngle(lon) {
+                    return (lon - house1Lon) * (Math.PI / 180) + Math.PI;
+                }
+
+                function polar(angle, r) {
+                    return { x: cx + r * Math.cos(angle), y: cy - r * Math.sin(angle) };
+                }
+
+                var lines = [];
+                lines.push(
+                    '<svg viewBox="0 0 ' +
+                        size +
+                        " " +
+                        size +
+                        '" xmlns="http://www.w3.org/2000/svg">',
+                );
+
+                /* Background circle fills */
+                lines.push(
+                    '<circle cx="' +
+                        cx +
+                        '" cy="' +
+                        cy +
+                        '" r="' +
+                        outerR +
+                        '" fill="rgba(14,14,26,0.6)" stroke="' +
+                        "var(--gold)" +
+                        '" stroke-width="1.5"/>',
+                );
+                lines.push(
+                    '<circle cx="' +
+                        cx +
+                        '" cy="' +
+                        cy +
+                        '" r="' +
+                        innerR +
+                        '" fill="rgba(14,14,26,0.8)" stroke="' +
+                        "var(--gold)" +
+                        '" stroke-width="1"/>',
+                );
+
+                /* Sign divisions and glyphs */
+                for (var i = 0; i < 12; i++) {
+                    var a = lonToAngle(i * 30);
+                    var p1 = polar(a, innerR);
+                    var p2 = polar(a, outerR);
+                    lines.push(
+                        '<line x1="' +
+                            p1.x +
+                            '" y1="' +
+                            p1.y +
+                            '" x2="' +
+                            p2.x +
+                            '" y2="' +
+                            p2.y +
+                            '" stroke="var(--gold)" stroke-width="0.7" opacity="0.5"/>',
+                    );
+
+                    var midA = lonToAngle(i * 30 + 15);
+                    var gPos = polar(midA, signR);
+                    lines.push(
+                        '<text x="' +
+                            gPos.x +
+                            '" y="' +
+                            gPos.y +
+                            '" text-anchor="middle" dominant-baseline="central" fill="var(--text-primary)" font-size="15" opacity="0.8">' +
+                            SIGN_GLYPHS[SIGN_ORDER[i]] +
+                            "</text>",
+                    );
+                }
+
+                /* House cusps */
+                for (var h = 1; h <= 12; h++) {
+                    var house = chart.houses && chart.houses["House " + h];
+                    if (!house) {
+                        continue;
+                    }
+                    var ha = lonToAngle(house.longitude);
+                    var hp1 = polar(ha, 38);
+                    var hp2 = polar(ha, innerR);
+                    var isAngular = h === 1 || h === 4 || h === 7 || h === 10;
+                    lines.push(
+                        '<line x1="' +
+                            hp1.x +
+                            '" y1="' +
+                            hp1.y +
+                            '" x2="' +
+                            hp2.x +
+                            '" y2="' +
+                            hp2.y +
+                            '" stroke="' +
+                            (isAngular ? "var(--gold)" : "var(--text-muted)") +
+                            '" stroke-width="' +
+                            (isAngular ? 1.4 : 0.5) +
+                            '"' +
+                            (isAngular ? "" : ' stroke-dasharray="3 3"') +
+                            "/>",
+                    );
+                }
+
+                /* Ascendant marker (if different from House 1 cusp) */
+                var ascDiff = Math.abs(ascLon - house1Lon);
+                if (ascDiff > 0.5 && ascDiff < 359.5) {
+                    var ascA = lonToAngle(ascLon);
+                    var ascP1 = polar(ascA, 30);
+                    var ascP2 = polar(ascA, 50);
+                    lines.push(
+                        '<line x1="' +
+                            ascP1.x +
+                            '" y1="' +
+                            ascP1.y +
+                            '" x2="' +
+                            ascP2.x +
+                            '" y2="' +
+                            ascP2.y +
+                            '" stroke="var(--gold-light)" stroke-width="2.5"/>',
+                    );
+                    var ascLabel = polar(ascA, 20);
+                    lines.push(
+                        '<text x="' +
+                            ascLabel.x +
+                            '" y="' +
+                            ascLabel.y +
+                            '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-light)" font-size="10" font-weight="600">Asc</text>',
+                    );
+                }
+
+                /* Descendant marker */
+                var descLon = (ascLon + 180) % 360;
+                var descDiff = Math.abs(descLon - house1Lon);
+                if (descDiff > 0.5 && descDiff < 359.5) {
+                    var descA = lonToAngle(descLon);
+                    var descP1 = polar(descA, 30);
+                    var descP2 = polar(descA, 50);
+                    lines.push(
+                        '<line x1="' +
+                            descP1.x +
+                            '" y1="' +
+                            descP1.y +
+                            '" x2="' +
+                            descP2.x +
+                            '" y2="' +
+                            descP2.y +
+                            '" stroke="var(--gold-light)" stroke-width="2"/>',
+                    );
+                    var descLabel = polar(descA, 20);
+                    lines.push(
+                        '<text x="' +
+                            descLabel.x +
+                            '" y="' +
+                            descLabel.y +
+                            '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-light)" font-size="10" font-weight="600">Dsc</text>',
+                    );
+                }
+
+                /* Midheaven marker */
+                var mcLon = (chart.midheaven && chart.midheaven.longitude) || 0;
+                var mcA = lonToAngle(mcLon);
+                var mcP1 = polar(mcA, 30);
+                var mcP2 = polar(mcA, 50);
+                lines.push(
+                    '<line x1="' +
+                        mcP1.x +
+                        '" y1="' +
+                        mcP1.y +
+                        '" x2="' +
+                        mcP2.x +
+                        '" y2="' +
+                        mcP2.y +
+                        '" stroke="var(--gold-accent)" stroke-width="2.5"/>',
+                );
+                var mcLabel = polar(mcA, 20);
+                lines.push(
+                    '<text x="' +
+                        mcLabel.x +
+                        '" y="' +
+                        mcLabel.y +
+                        '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-accent)" font-size="10" font-weight="600">MC</text>',
+                );
+
+                /* IC marker (opposite Midheaven) */
+                var icLon = (mcLon + 180) % 360;
+                var icA = lonToAngle(icLon);
+                var icP1 = polar(icA, 30);
+                var icP2 = polar(icA, 50);
+                lines.push(
+                    '<line x1="' +
+                        icP1.x +
+                        '" y1="' +
+                        icP1.y +
+                        '" x2="' +
+                        icP2.x +
+                        '" y2="' +
+                        icP2.y +
+                        '" stroke="var(--gold-accent)" stroke-width="2"/>',
+                );
+                var icLabel = polar(icA, 20);
+                lines.push(
+                    '<text x="' +
+                        icLabel.x +
+                        '" y="' +
+                        icLabel.y +
+                        '" text-anchor="middle" dominant-baseline="central" fill="var(--gold-accent)" font-size="10" font-weight="600">IC</text>',
+                );
+
+                /* Aspect lines */
+                var aspectColors = {
+                    conjunction: "#ffffff",
+                    trine: "#5cb85c",
+                    sextile: "#5bc0de",
+                    square: "#d9534f",
+                    opposition: "#f0ad4e",
+                };
+
+                if (chart.aspects) {
+                    for (var ai = 0; ai < chart.aspects.length; ai++) {
+                        var asp = chart.aspects[ai];
+                        var pl1 = chart.planets[asp.planet1];
+                        var pl2 = chart.planets[asp.planet2];
+                        if (!pl1 || !pl2) {
+                            continue;
+                        }
+                        var aa1 = lonToAngle(pl1.longitude);
+                        var aa2 = lonToAngle(pl2.longitude);
+                        var ap1 = polar(aa1, planetR - 20);
+                        var ap2 = polar(aa2, planetR - 20);
+                        lines.push(
+                            '<line x1="' +
+                                ap1.x +
+                                '" y1="' +
+                                ap1.y +
+                                '" x2="' +
+                                ap2.x +
+                                '" y2="' +
+                                ap2.y +
+                                '" stroke="' +
+                                (aspectColors[asp.aspect] || "#555") +
+                                '" stroke-width="0.6" opacity="0.35"/>',
+                        );
+                    }
+                }
+
+                /* Planets */
+                if (chart.planets) {
+                    var planetKeys = Object.keys(chart.planets);
+                    for (var pi = 0; pi < planetKeys.length; pi++) {
+                        var pName = planetKeys[pi];
+                        var pData = chart.planets[pName];
+                        var pa = lonToAngle(pData.longitude);
+                        var pPos = polar(pa, planetR);
+                        /* glow */
+                        lines.push(
+                            '<circle cx="' +
+                                pPos.x +
+                                '" cy="' +
+                                pPos.y +
+                                '" r="12" fill="rgba(212,168,67,0.08)"/>',
+                        );
+                        lines.push(
+                            '<text x="' +
+                                pPos.x +
+                                '" y="' +
+                                pPos.y +
+                                '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">' +
+                                (PLANET_GLYPHS[pName] || pName.charAt(0)) +
+                                "</text>",
+                        );
+                    }
+                }
+
+                lines.push("</svg>");
+                container.innerHTML = lines.join("");
+            }
+
+            /* ── Render Planet Table ── */
+            function renderPlanetTable(chart) {
+                var container = document.getElementById("planet-positions");
+                if (!chart.planets) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary)">No planetary data available.</p>';
+                    return;
+                }
+
+                var rows = [
+                    '<table class="planet-table"><thead><tr><th></th><th>Planet</th><th>Sign</th><th>Degree</th></tr></thead><tbody>',
+                ];
+
+                var keys = Object.keys(chart.planets);
+                for (var i = 0; i < keys.length; i++) {
+                    var name = keys[i];
+                    var data = chart.planets[name];
+                    var sign = data.sign || signFromLongitude(data.longitude);
+                    var deg = data.degree != null ? data.degree : data.longitude % 30;
+                    var degStr =
+                        Math.floor(deg) + "\u00B0" + Math.floor((deg % 1) * 60) + "'";
+
+                    rows.push(
+                        "<tr>" +
+                            '<td class="glyph">' +
+                            (PLANET_GLYPHS[name] || "") +
+                            "</td>" +
+                            '<td class="planet-name">' +
+                            name +
+                            "</td>" +
+                            "<td>" +
+                            (SIGN_GLYPHS[sign] || "") +
+                            " " +
+                            sign +
+                            "</td>" +
+                            "<td>" +
+                            degStr +
+                            "</td>" +
+                            "</tr>",
+                    );
+                }
+
+                rows.push("</tbody></table>");
+                container.innerHTML = rows.join("");
+            }
+
+            function signFromLongitude(lon) {
+                var idx = Math.floor(lon / 30) % 12;
+                return SIGN_ORDER[idx];
+            }
+
+            /* ── Allow Enter key to submit ── */
+            document
+                .getElementById("birth-city")
+                .addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") {
+                        submitBirthData();
+                    }
+                });
+
+            /* ── Show/hide sidereal mode based on zodiac type ── */
+            document
+                .getElementById("zodiac-type")
+                .addEventListener("change", function (e) {
+                    var siderealGroup = document.getElementById("sidereal-mode-group");
+                    siderealGroup.style.display = e.target.value === "sidereal" ? "block" : "none";
+                });
+        </script>
+    </body>
+</html>

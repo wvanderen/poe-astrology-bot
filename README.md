@@ -169,3 +169,20 @@ A correct implementation would look like https://poe.com/TopRecommender
 - To deploy, run `modal deploy python_runner.py`
 
 A correct implementation would look like https://poe.com/PythonCodeRunner
+
+### AstrologyBot
+
+- A sophisticated natal chart calculation and interpretation bot.
+- Features:
+  - Calculates birth charts using Swiss Ephemeris (pyswisseph)
+  - Renders interactive SVG chart wheels with planets, houses, and aspects
+  - Provides LLM-powered astrological interpretations via Claude-3.5-Sonnet
+  - Supports transit overlays for current planetary positions
+  - Follow-up Q&A about chart details
+- Setup:
+  1. Run `python setup_ephe.py` to download Swiss Ephemeris data files
+  2. Deploy with `modal deploy astrology_bot.py`
+  3. Upload `canvas/index.html` to Poe Creator Dashboard as Canvas app
+- Dependencies: fastapi-poe, pyswisseph, timezonefinder, geopy
+
+See `LIVING_SPEC.md` for detailed architecture and implementation notes.
