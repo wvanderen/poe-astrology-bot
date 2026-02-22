@@ -1,0 +1,2514 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Astrology Chart Calculator</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
+        <style>
+            :root {
+                --gold: #d4a843;
+                --gold-light: #f0dca0;
+                --gold-dim: rgba(212, 168, 67, 0.25);
+                --gold-accent: #ffeaa7;
+                --bg-deep: #0e0e1a;
+                --bg-card: rgba(255, 255, 255, 0.04);
+                --bg-card-hover: rgba(255, 255, 255, 0.07);
+                --border: rgba(212, 168, 67, 0.2);
+                --text-primary: #eae0cc;
+                --text-secondary: #9a917e;
+                --text-muted: #6b6458;
+                --error-bg: rgba(220, 60, 60, 0.12);
+                --error-border: rgba(220, 60, 60, 0.4);
+                --error-text: #e87070;
+                --planet-glyph: #ffffff;
+                --input-bg: rgba(0, 0, 0, 0.35);
+            }
+
+            [data-theme="light"] {
+                --gold: #b8912e;
+                --gold-light: #d4a843;
+                --gold-dim: rgba(184, 145, 46, 0.15);
+                --gold-accent: #c9a227;
+                --bg-deep: #f5f3ef;
+                --bg-card: rgba(255, 255, 255, 0.8);
+                --bg-card-hover: rgba(255, 255, 255, 0.95);
+                --border: rgba(184, 145, 46, 0.3);
+                --text-primary: #2a2a2a;
+                --text-secondary: #5a5a5a;
+                --text-muted: #8a8a8a;
+                --error-bg: rgba(220, 60, 60, 0.08);
+                --error-border: rgba(220, 60, 60, 0.3);
+                --error-text: #c65050;
+                --planet-glyph: #1a1a2e;
+                --input-bg: rgba(0, 0, 0, 0.05);
+            }
+
+            [data-theme="light"] body::before {
+                background:
+                    radial-gradient(
+                        ellipse 80% 60% at 20% 10%,
+                        rgba(212, 168, 67, 0.08),
+                        transparent
+                    ),
+                    radial-gradient(
+                        ellipse 60% 50% at 80% 90%,
+                        rgba(100, 80, 40, 0.05),
+                        transparent
+                    );
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Nunito Sans", sans-serif;
+                background: var(--bg-deep);
+                color: var(--text-primary);
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background:
+                    radial-gradient(
+                        ellipse 80% 60% at 20% 10%,
+                        rgba(90, 60, 20, 0.15),
+                        transparent
+                    ),
+                    radial-gradient(
+                        ellipse 60% 50% at 80% 90%,
+                        rgba(40, 30, 80, 0.2),
+                        transparent
+                    );
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .page-wrapper {
+                position: relative;
+                z-index: 1;
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 24px 16px 60px;
+            }
+
+            /* Header */
+            .header {
+                text-align: center;
+                margin-bottom: 36px;
+                animation: fadeDown 0.6s ease-out;
+            }
+
+            .header h1 {
+                font-family: "Cormorant Garamond", serif;
+                font-weight: 600;
+                font-size: 2.4rem;
+                letter-spacing: 0.04em;
+                background: linear-gradient(
+                    135deg,
+                    var(--gold) 0%,
+                    var(--gold-light) 55%,
+                    var(--gold) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                margin-top: 6px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                font-weight: 300;
+            }
+
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .header-title {
+                flex: 1;
+                text-align: center;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 8px;
+            }
+
+            .header-link {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 10px 14px;
+                cursor: pointer;
+                color: var(--gold);
+                font-size: 1.1rem;
+                transition: background 0.2s, border-color 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+            }
+
+            .header-link:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+                transform: scale(1.05);
+            }
+
+            .theme-toggle {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 10px 14px;
+                cursor: pointer;
+                color: var(--gold);
+                font-size: 1.1rem;
+                transition: background 0.2s, border-color 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .theme-toggle:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+                transform: scale(1.05);
+            }
+
+            /* Form Card */
+            .birth-form {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 28px 24px;
+                margin-bottom: 28px;
+                backdrop-filter: blur(6px);
+                animation: fadeUp 0.5s ease-out 0.15s both;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+                margin-bottom: 24px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+            label {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--gold);
+                margin-bottom: 6px;
+                letter-spacing: 0.04em;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="time"],
+            select,
+            textarea {
+                padding: 12px 14px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: var(--input-bg);
+                color: var(--text-primary);
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 16px;
+                transition:
+                    border-color 0.25s,
+                    box-shadow 0.25s;
+            }
+
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: none;
+                border-color: var(--gold);
+                box-shadow: 0 0 0 3px var(--gold-dim);
+            }
+
+            input::placeholder,
+            textarea::placeholder {
+                color: var(--text-muted);
+            }
+
+            select {
+                cursor: pointer;
+                appearance: none;
+                background-color: var(--input-bg);
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a917e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 14px center;
+                padding-right: 40px;
+            }
+
+            select option {
+                background: var(--bg-deep);
+                color: var(--text-primary);
+            }
+
+            [data-theme="light"] select option {
+                background: #fff;
+                color: #333;
+            }
+
+            [data-theme="light"] select {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5a5a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            }
+
+            /* colorScheme for date/time pickers */
+            input[type="date"],
+            input[type="time"] {
+                color-scheme: dark;
+            }
+
+            [data-theme="light"] input[type="date"],
+            [data-theme="light"] input[type="time"] {
+                color-scheme: light;
+            }
+
+            .btn-primary {
+                width: 100%;
+                padding: 14px;
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.15rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--bg-deep);
+                background: linear-gradient(135deg, var(--gold), #b8912e);
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s,
+                    opacity 0.2s;
+            }
+
+            .btn-primary:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 24px rgba(212, 168, 67, 0.3);
+            }
+
+            .btn-primary:active:not(:disabled) {
+                transform: translateY(0);
+            }
+
+            .btn-primary:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            /* Toast Notification */
+            .toast {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-120%);
+                background: var(--error-bg);
+                border: 1px solid var(--error-border);
+                color: var(--error-text);
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 0.9rem;
+                z-index: 9999;
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s;
+                max-width: 90vw;
+                text-align: center;
+                backdrop-filter: blur(12px);
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .toast.show {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            /* Loading */
+            .loading-section {
+                display: none;
+                text-align: center;
+                padding: 48px 20px;
+                animation: fadeUp 0.4s ease-out;
+            }
+
+            .loading-section.visible {
+                display: block;
+            }
+
+            .orbit-spinner {
+                width: 64px;
+                height: 64px;
+                margin: 0 auto 20px;
+                position: relative;
+            }
+
+            .orbit-spinner .ring {
+                position: absolute;
+                inset: 0;
+                border: 2px solid transparent;
+                border-top-color: var(--gold);
+                border-radius: 50%;
+                animation: orbitSpin 1.4s linear infinite;
+            }
+
+            .orbit-spinner .ring:nth-child(2) {
+                inset: 8px;
+                border-top-color: var(--gold-light);
+                animation-duration: 1.8s;
+                animation-direction: reverse;
+            }
+
+            .orbit-spinner .ring:nth-child(3) {
+                inset: 16px;
+                border-top-color: var(--text-secondary);
+                animation-duration: 2.2s;
+            }
+
+            .orbit-spinner .dot {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 6px;
+                height: 6px;
+                margin: -3px;
+                background: var(--gold);
+                border-radius: 50%;
+            }
+
+            @keyframes orbitSpin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loading-text {
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+            }
+
+            .loading-text .dots::after {
+                content: "";
+                animation: dots 1.4s steps(4) infinite;
+            }
+
+            @keyframes dots {
+                0% {
+                    content: "";
+                }
+                25% {
+                    content: ".";
+                }
+                50% {
+                    content: "..";
+                }
+                75% {
+                    content: "...";
+                }
+            }
+
+            /* Results */
+            .results-section {
+                display: none;
+                animation: fadeUp 0.5s ease-out;
+            }
+
+            .results-section.visible {
+                display: block;
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            /* Chart card spans full width */
+            #chart-card {
+                grid-column: 1 / -1;
+            }
+
+            .card {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 24px;
+                backdrop-filter: blur(6px);
+            }
+
+            .card-title {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: var(--gold);
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .card-title i {
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
+
+            /* Chart Wheel */
+            #chart-wheel svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            /* Interpretation */
+            .interpretation-card {
+                grid-column: 1 / -1;
+            }
+
+            .interpretation-content {
+                color: var(--text-primary);
+                line-height: 1.75;
+                font-size: 0.95rem;
+            }
+
+            .interpretation-content h1,
+            .interpretation-content h2,
+            .interpretation-content h3 {
+                font-family: "Cormorant Garamond", serif;
+                color: var(--gold);
+                margin: 20px 0 8px;
+            }
+
+            .interpretation-content h1 {
+                font-size: 1.4rem;
+            }
+            .interpretation-content h2 {
+                font-size: 1.2rem;
+            }
+            .interpretation-content h3 {
+                font-size: 1.05rem;
+            }
+
+            .interpretation-content p {
+                margin-bottom: 12px;
+            }
+
+            .interpretation-content strong {
+                color: var(--gold-light);
+            }
+
+            .interpretation-content ul,
+            .interpretation-content ol {
+                margin: 8px 0 12px 20px;
+            }
+
+            .interpretation-content li {
+                margin-bottom: 4px;
+            }
+
+            .interpretation-content em {
+                color: var(--text-secondary);
+                font-style: italic;
+            }
+
+            .interpretation-content code {
+                background: rgba(255, 255, 255, 0.06);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.88em;
+            }
+
+            .streaming-cursor::after {
+                content: "▍";
+                animation: blink 0.8s steps(2) infinite;
+                color: var(--gold);
+                margin-left: 2px;
+            }
+
+            @keyframes blink {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+            }
+
+            /* Thinking badge */
+            .thinking-badge {
+                margin-left: auto;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--gold);
+                background: var(--gold-dim);
+                padding: 4px 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                animation: pulse-thinking 1.5s ease-in-out infinite;
+            }
+
+            .thinking-badge i {
+                font-size: 0.7rem;
+                animation: brain-pulse 1.2s ease-in-out infinite;
+            }
+
+            @keyframes pulse-thinking {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+
+            @keyframes brain-pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.2);
+                }
+            }
+
+            /* Planet Table */
+            .planet-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.88rem;
+            }
+
+            .planet-table th {
+                text-align: left;
+                color: var(--text-secondary);
+                font-weight: 400;
+                padding: 6px 8px;
+                border-bottom: 1px solid var(--border);
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+
+            .planet-table td {
+                padding: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+
+            .planet-table .glyph {
+                font-size: 1.5rem;
+                width: 40px;
+                text-align: center;
+            }
+
+            .planet-table .sign-glyph {
+                font-size: 1.3rem;
+                margin-right: 6px;
+            }
+
+            .planet-table .planet-name {
+                color: var(--gold-light);
+                font-weight: 600;
+            }
+
+            /* Aspect Matrix Table */
+            .aspect-matrix {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+
+            .aspect-matrix th {
+                color: var(--text-secondary);
+                font-weight: 400;
+                padding: 4px;
+                font-size: 1.1rem;
+                text-align: center;
+                width: 36px;
+                height: 36px;
+            }
+
+            .aspect-matrix td {
+                width: 36px;
+                height: 36px;
+                text-align: center;
+                vertical-align: middle;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .aspect-matrix td.empty {
+                background: rgba(255, 255, 255, 0.02);
+            }
+
+            .aspect-matrix .aspect-cell {
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+            .aspect-matrix .aspect-conjunction {
+                color: #ffffff;
+            }
+
+            .aspect-matrix .aspect-sextile {
+                color: #5bc0de;
+            }
+
+            .aspect-matrix .aspect-square {
+                color: #ff6b6b;
+            }
+
+            .aspect-matrix .aspect-trine {
+                color: #6bcf6b;
+            }
+
+            .aspect-matrix .aspect-opposition {
+                color: #ffd93d;
+            }
+
+            .aspect-matrix .planet-row-header {
+                font-size: 1.1rem;
+                color: var(--gold-light);
+                text-align: center;
+            }
+
+            /* New Reading button */
+            .btn-secondary {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 24px;
+                padding: 10px 20px;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.88rem;
+                color: var(--gold);
+                background: transparent;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                cursor: pointer;
+                transition:
+                    background 0.2s,
+                    border-color 0.2s;
+            }
+
+            .btn-secondary:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            /* Follow-up section */
+            .follow-up-section {
+                margin-top: 24px;
+                display: none;
+            }
+
+            .follow-up-section.visible {
+                display: block;
+            }
+
+            .conversation-history {
+                margin-bottom: 16px;
+            }
+
+            .conversation-item {
+                margin-bottom: 20px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .conversation-item:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .conversation-question {
+                font-size: 0.9rem;
+                color: var(--gold-light);
+                margin-bottom: 8px;
+            }
+
+            .conversation-question i {
+                margin-right: 6px;
+                opacity: 0.7;
+            }
+
+            .conversation-answer {
+                color: var(--text-primary);
+                line-height: 1.75;
+                font-size: 0.95rem;
+            }
+
+            .conversation-answer h1,
+            .conversation-answer h2,
+            .conversation-answer h3 {
+                font-family: "Cormorant Garamond", serif;
+                color: var(--gold);
+                margin: 16px 0 6px;
+            }
+
+            .conversation-answer h1 { font-size: 1.3rem; }
+            .conversation-answer h2 { font-size: 1.15rem; }
+            .conversation-answer h3 { font-size: 1rem; }
+
+            .conversation-answer p {
+                margin-bottom: 10px;
+            }
+
+            .conversation-answer strong {
+                color: var(--gold-light);
+            }
+
+            .conversation-answer ul,
+            .conversation-answer ol {
+                margin: 6px 0 10px 18px;
+            }
+
+            .conversation-answer li {
+                margin-bottom: 3px;
+            }
+
+            .follow-up-input-group {
+                display: flex;
+                gap: 12px;
+                margin-top: 16px;
+            }
+
+            .follow-up-input-group textarea {
+                flex: 1;
+                min-height: 60px;
+                resize: vertical;
+            }
+
+            .btn-follow-up {
+                padding: 12px 20px;
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+                color: var(--bg-deep);
+                background: linear-gradient(135deg, var(--gold), #b8912e);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+                white-space: nowrap;
+                align-self: flex-start;
+            }
+
+            .btn-follow-up:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(212, 168, 67, 0.3);
+            }
+
+            .btn-follow-up:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            /* Follow-up thinking indicator */
+            .follow-up-thinking {
+                display: none;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+                padding: 10px 14px;
+                background: var(--gold-dim);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--gold);
+                font-size: 0.85rem;
+            }
+
+            .follow-up-thinking.visible {
+                display: flex;
+            }
+
+            .follow-up-thinking i {
+                animation: pulse-thinking 1.5s ease-in-out infinite;
+            }
+
+            /* Suggested questions */
+            .suggested-questions {
+                margin-top: 16px;
+                display: none;
+            }
+
+            .suggested-questions.visible {
+                display: block;
+            }
+
+            .suggested-questions-title {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                margin-bottom: 8px;
+            }
+
+            .suggested-question-btn {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 10px 14px;
+                margin-bottom: 8px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s;
+            }
+
+            .suggested-question-btn:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            .suggested-question-btn i {
+                color: var(--gold);
+                margin-right: 8px;
+                font-size: 0.8rem;
+            }
+
+            /* Responsive */
+            @media (max-width: 640px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 1.6rem;
+                }
+                .header-content {
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .header-actions {
+                    margin-top: 0;
+                }
+                .header-link,
+                .theme-toggle {
+                    padding: 8px 12px;
+                    font-size: 1rem;
+                }
+                .page-wrapper {
+                    padding: 16px 12px 48px;
+                }
+                .birth-form {
+                    padding: 20px 16px;
+                }
+                .card {
+                    padding: 18px 14px;
+                }
+            }
+
+            /* Export Controls */
+            .export-controls {
+                display: flex;
+                gap: 12px;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid var(--border);
+                flex-wrap: wrap;
+            }
+
+            .export-controls-title {
+                width: 100%;
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                margin-bottom: 4px;
+            }
+
+            .btn-export {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 14px;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.85rem;
+                color: var(--text-primary);
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+            }
+
+            .btn-export:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            .btn-export i {
+                color: var(--gold);
+                font-size: 0.9rem;
+            }
+
+            .btn-export:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            /* Animations */
+            @keyframes fadeDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-14px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(14px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Print styles - hide main page when overlay is active */
+            @media print {
+                body > *:not(#print-overlay) {
+                    display: none !important;
+                }
+                #print-overlay {
+                    display: block !important;
+                    position: static !important;
+                    overflow: visible !important;
+                }
+                .print-controls {
+                    display: none !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1>Natal Chart Reading</h1>
+                        <p>Powered by PoeAstrologyBot</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="https://github.com/wvanderen/poe-astrology-bot" target="_blank" class="header-link" title="View source on GitHub">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="https://github.com/wvanderen/poe-astrology-bot/releases" target="_blank" class="header-link" title="Changelog">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </a>
+                        <a href="https://github.com/wvanderen/poe-astrology-bot/issues/new" target="_blank" class="header-link" title="Submit feedback or report issue">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </a>
+                        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                            <i class="fa-solid fa-sun" id="theme-icon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Birth Data Form -->
+            <div class="birth-form" id="birth-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="birth-date">Birth Date</label>
+                        <input type="date" id="birth-date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="birth-time">Birth Time</label>
+                        <input type="time" id="birth-time" required />
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="birth-city">Birth City</label>
+                        <input
+                            type="text"
+                            id="birth-city"
+                            placeholder="e.g. Austin, TX  or  Paris, France"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="house-system">House System</label>
+                        <select id="house-system">
+                            <option value="placidus">Placidus</option>
+                            <option value="whole_sign">Whole Sign</option>
+                            <option value="equal">Equal</option>
+                            <option value="koch">Koch</option>
+                            <option value="regiomontanus">Regiomontanus</option>
+                            <option value="campanus">Campanus</option>
+                            <option value="porphyry">Porphyry</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="zodiac-type">Zodiac</label>
+                        <select id="zodiac-type">
+                            <option value="tropical">Tropical (Western)</option>
+                            <option value="sidereal">Sidereal (Vedic)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width" id="sidereal-mode-group" style="display: none;">
+                        <label for="sidereal-mode">Sidereal Ayanamsa</label>
+                        <select id="sidereal-mode">
+                            <option value="lahiri">Lahiri (Vedic standard)</option>
+                            <option value="fagan_bradley">Fagan-Bradley</option>
+                            <option value="raman">Raman</option>
+                            <option value="krishnamurti">Krishnamurti</option>
+                            <option value="jyotish">Jyotish (J2000)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="model-select">Interpretation Model</label>
+                        <select id="model-select">
+                            <option value="Kimi-K2-Thinking" selected>Kimi K2 Thinking (Default)</option>
+                            <option value="Kimi-K2.5">Kimi K2.5</option>
+                            <option value="Kimi-K2">Kimi K2</option>
+                            <option value="Claude-Opus-4.6">Claude Opus 4.6</option>
+                            <option value="Claude-Sonnet-4.6">Claude Sonnet 4.6</option>
+                            <option value="Claude-Haiku-4.5">Claude Haiku 4.5</option>
+                            <option value="GPT-5.2-Thinking">GPT-5.2 Thinking</option>
+                            <option value="GPT-5.2-Instant">GPT-5.2 Instant</option>
+                            <option value="GPT-4o">GPT-4o</option>
+                            <option value="Gemini-3.1">Gemini 3.1</option>
+                            <option value="Gemini-3-Pro">Gemini 3 Pro</option>
+                            <option value="Gemini-3-Flash">Gemini 3 Flash</option>
+                            <option value="MiniMax-M2.5">MiniMax M2.5</option>
+                            <option value="GLM-5">GLM-5</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="initial-context">Focus or Question <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+                        <textarea
+                            id="initial-context"
+                            rows="2"
+                            placeholder="e.g. 'Focus on career' or 'What does my chart say about relationships?'"
+                            style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--input-bg); color: var(--text-primary); font-family: 'Nunito Sans', sans-serif; font-size: 16px; resize: vertical; min-height: 48px; transition: border-color 0.25s, box-shadow 0.25s;"
+                        ></textarea>
+                    </div>
+                </div>
+                <button
+                    class="btn-primary"
+                    id="calculate-btn"
+                    onclick="submitBirthData()"
+                >
+                    Cast My Chart
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-section" id="loading">
+                <div class="orbit-spinner">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="dot"></div>
+                </div>
+                <p class="loading-text">
+                    Consulting the stars<span class="dots"></span>
+                </p>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="results">
+                <div class="results-grid">
+                    <div class="card" id="chart-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-circle-nodes"></i> Natal Chart
+                        </div>
+                        <div id="chart-wheel"></div>
+                    </div>
+
+                    <div class="card" id="planets-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-sun"></i> Planetary Positions
+                        </div>
+                        <div id="planet-positions"></div>
+                    </div>
+
+                    <div class="card" id="aspects-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-grip"></i> Aspect Matrix
+                        </div>
+                        <div id="aspect-matrix"></div>
+                    </div>
+
+                    <div
+                        class="card interpretation-card"
+                        id="interpretation-card"
+                        style="display: none"
+                    >
+                        <div class="card-title">
+                            <i class="fa-solid fa-scroll"></i> Interpretation
+                            <span class="thinking-badge" id="thinking-badge" style="display: none">
+                                <i class="fa-solid fa-brain"></i> Thinking
+                            </span>
+                        </div>
+                        <div class="interpretation-content" id="interpretation"></div>
+                        
+                        <div class="conversation-history" id="conversation-history"></div>
+                        
+                        <div class="follow-up-section" id="follow-up-section">
+                            <div class="suggested-questions" id="suggested-questions">
+                                <div class="suggested-questions-title">Suggested questions:</div>
+                            </div>
+                            
+                            <div class="follow-up-thinking" id="follow-up-thinking">
+                                <i class="fa-solid fa-brain"></i> Thinking...
+                            </div>
+                            
+                            <div class="follow-up-input-group">
+                                <textarea
+                                    id="follow-up-input"
+                                    rows="2"
+                                    placeholder="Ask a follow-up question about your chart..."
+                                ></textarea>
+                                <button class="btn-follow-up" id="follow-up-btn" onclick="submitFollowUp()">
+                                    <i class="fa-solid fa-paper-plane"></i> Ask
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="export-controls" id="export-controls" style="display: none;">
+                        <div class="export-controls-title">Export your reading:</div>
+                        <button class="btn-export" onclick="exportChartPNG()" title="Download chart wheel as PNG">
+                            <i class="fa-solid fa-image"></i> PNG
+                        </button>
+                        <button class="btn-export" onclick="exportFullPDF()" title="Download full report as PDF">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn-export" onclick="exportMarkdown()" title="Download as Markdown">
+                            <i class="fa-solid fa-file-lines"></i> Markdown
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="resetForm()">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> New Reading
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+
+        <!-- Markdown parser -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+        <script>
+            /* ── State ── */
+            var lastChartData = null;
+            var conversationHistory = [];
+            var suggestedQuestions = [];
+
+            /* ── Theme Management ── */
+            function initTheme() {
+                var savedTheme = 'dark';
+                try {
+                    savedTheme = localStorage.getItem('chart-theme') || 'dark';
+                } catch (e) {
+                    // localStorage not available in sandboxed iframe
+                }
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            }
+
+            function toggleTheme() {
+                var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                try {
+                    localStorage.setItem('chart-theme', newTheme);
+                } catch (e) {
+                    // localStorage not available in sandboxed iframe, theme resets on page reload
+                }
+                updateThemeIcon(newTheme);
+                showToast(newTheme === 'light' ? 'Light mode enabled' : 'Dark mode enabled', 1500);
+            }
+
+            function updateThemeIcon(theme) {
+                var icon = document.getElementById('theme-icon');
+                if (icon) {
+                    icon.className = theme === 'light' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+                }
+            }
+
+            // Initialize theme on load
+            initTheme();
+
+            /* ── Glyph Maps ── */
+            const SIGN_GLYPHS = {
+                Aries: "\u2648",
+                Taurus: "\u2649",
+                Gemini: "\u264A",
+                Cancer: "\u264B",
+                Leo: "\u264C",
+                Virgo: "\u264D",
+                Libra: "\u264E",
+                Scorpio: "\u264F",
+                Sagittarius: "\u2650",
+                Capricorn: "\u2651",
+                Aquarius: "\u2652",
+                Pisces: "\u2653",
+            };
+
+            const PLANET_GLYPHS = {
+                Sun: "\u2609",
+                Moon: "\u263D",
+                Mercury: "\u263F",
+                Venus: "\u2640",
+                Mars: "\u2642",
+                Jupiter: "\u2643",
+                Saturn: "\u2644",
+                Uranus: "\u2645",
+                Neptune: "\u2646",
+                Pluto: "\u2647",
+                "North Node": "\u260A",
+                Chiron: "\u26B7",
+            };
+
+            const ASPECT_GLYPHS = {
+                conjunction: "\u260C",
+                sextile: "\u26B9",
+                square: "\u25A1",
+                trine: "\u25B3",
+                opposition: "\u260D",
+            };
+
+            const ASPECT_CLASSES = {
+                conjunction: "aspect-conjunction",
+                sextile: "aspect-sextile",
+                square: "aspect-square",
+                trine: "aspect-trine",
+                opposition: "aspect-opposition",
+            };
+
+            const SIGN_ORDER = [
+                "Aries",
+                "Taurus",
+                "Gemini",
+                "Cancer",
+                "Leo",
+                "Virgo",
+                "Libra",
+                "Scorpio",
+                "Sagittarius",
+                "Capricorn",
+                "Aquarius",
+                "Pisces",
+            ];
+
+            /* ── Toast helper (replaces alert) ── */
+            function showToast(msg, duration) {
+                duration = duration || 3500;
+                var el = document.getElementById("toast");
+                el.textContent = msg;
+                el.classList.add("show");
+                setTimeout(function () {
+                    el.classList.remove("show");
+                }, duration);
+            }
+
+            /* ── Register the Poe response handler ── */
+            window.Poe.registerHandler("astro-handler", function (result) {
+                var msg = result.responses[0];
+                if (!msg) {
+                    return;
+                }
+
+                if (msg.status === "error") {
+                    document.getElementById("loading").classList.remove("visible");
+                    showToast(
+                        "Error from bot: " + (msg.statusText || "Unknown error"),
+                        5000,
+                    );
+                    document.getElementById("calculate-btn").disabled = false;
+                    document.getElementById("follow-up-btn").disabled = false;
+                    return;
+                }
+
+                /* Try to extract structured chart JSON from the response */
+                var content = msg.content || "";
+                var chartData = extractChartData(content);
+
+                if (chartData) {
+                    /* We got chart data — render visuals */
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("results").classList.add("visible");
+                    renderChartWheel(chartData);
+                    renderPlanetTable(chartData);
+                    renderAspectMatrix(chartData);
+                    /* Store chart data for follow-ups */
+                    lastChartData = chartData;
+                }
+
+                /* Show any textual interpretation */
+                var textPart = stripJsonBlock(content);
+                if (textPart.trim()) {
+                    var interpCard = document.getElementById("interpretation-card");
+                    var interpEl = document.getElementById("interpretation");
+                    var thinkingBadge = document.getElementById("thinking-badge");
+                    interpCard.style.display = "";
+
+                    if (msg.status === "incomplete") {
+                        interpEl.innerHTML = marked.parse(textPart);
+                        interpEl.classList.add("streaming-cursor");
+                        if (thinkingBadge) thinkingBadge.style.display = "inline-flex";
+                    } else {
+                        interpEl.innerHTML = marked.parse(textPart);
+                        interpEl.classList.remove("streaming-cursor");
+                        if (thinkingBadge) thinkingBadge.style.display = "none";
+                    }
+                }
+
+                if (msg.status === "complete") {
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("results").classList.add("visible");
+                    document.getElementById("calculate-btn").disabled = false;
+                    document.getElementById("follow-up-btn").disabled = false;
+
+                    /* Hide thinking badge when complete */
+                    var thinkingBadgeComplete = document.getElementById("thinking-badge");
+                    if (thinkingBadgeComplete) thinkingBadgeComplete.style.display = "none";
+
+                    /* Show follow-up section */
+                    if (lastChartData) {
+                        document.getElementById("follow-up-section").classList.add("visible");
+                        showExportControls();
+                    }
+
+                    /* Extract and display suggested questions, strip from interpretation */
+                    var extracted = extractSuggestedQuestions(textPart);
+                    if (extracted.questions.length > 0) {
+                        renderSuggestedQuestions(extracted.questions);
+                        var interpEl = document.getElementById("interpretation");
+                        interpEl.innerHTML = marked.parse(extracted.cleanText);
+                    }
+
+                    /* If no chart data was found at all, still show the text */
+                    if (!chartData) {
+                        var interpCard2 =
+                            document.getElementById("interpretation-card");
+                        var interpEl2 = document.getElementById("interpretation");
+                        interpCard2.style.display = "";
+                        interpEl2.innerHTML = marked.parse(content);
+                        interpEl2.classList.remove("streaming-cursor");
+                        /* hide the chart & planet cards since no data */
+                        document.getElementById("chart-card").style.display = "none";
+                        document.getElementById("planets-card").style.display = "none";
+                    }
+                }
+            });
+
+            /* ── Submit birth data to PoeAstrologyBot ── */
+            async function submitBirthData() {
+                var date = document.getElementById("birth-date").value;
+                var time = document.getElementById("birth-time").value;
+                var city = document.getElementById("birth-city").value.trim();
+                var houseSystem = document.getElementById("house-system").value;
+                var zodiacType = document.getElementById("zodiac-type").value;
+                var siderealMode = document.getElementById("sidereal-mode").value;
+                var initialContext = document.getElementById("initial-context").value.trim();
+
+                if (!date || !time || !city) {
+                    showToast("Please fill in all fields");
+                    return;
+                }
+
+                /* Reset state */
+                document.getElementById("calculate-btn").disabled = true;
+                document.getElementById("loading").classList.add("visible");
+                document.getElementById("results").classList.remove("visible");
+                document.getElementById("interpretation-card").style.display = "none";
+                document.getElementById("interpretation").innerHTML = "";
+                document.getElementById("chart-card").style.display = "";
+                document.getElementById("planets-card").style.display = "";
+                
+                /* Reset conversation */
+                conversationHistory = [];
+                document.getElementById("conversation-history").innerHTML = "";
+                document.getElementById("follow-up-section").classList.remove("visible");
+                document.getElementById("export-controls").style.display = "none";
+
+                var model = document.getElementById("model-select").value;
+
+                var birthData = {
+                    type: "birth_data",
+                    date: date,
+                    time: time,
+                    city: city,
+                    house_system: houseSystem,
+                    zodiac_type: zodiacType,
+                    model: model,
+                };
+
+                if (zodiacType === "sidereal") {
+                    birthData.sidereal_mode = siderealMode;
+                }
+                
+                if (initialContext) {
+                    birthData.initial_context = initialContext;
+                }
+
+                try {
+                    await window.Poe.sendUserMessage(
+                        "@PoeAstrologyBot " + JSON.stringify(birthData),
+                        {
+                            handler: "astro-handler",
+                            stream: true,
+                            openChat: false,
+                            parameters: {},
+                        }
+                    );
+                } catch (err) {
+                    document.getElementById("loading").classList.remove("visible");
+                    document.getElementById("calculate-btn").disabled = false;
+                    var errMsg =
+                        err && err.errorType
+                            ? "Could not send message (" + err.errorType + ")"
+                            : "Could not send message. Please try again.";
+                    showToast(errMsg, 5000);
+                }
+            }
+
+            /* ── Reset ── */
+            function resetForm() {
+                document.getElementById("results").classList.remove("visible");
+                document.getElementById("chart-wheel").innerHTML = "";
+                document.getElementById("planet-positions").innerHTML = "";
+                document.getElementById("aspect-matrix").innerHTML = "";
+                document.getElementById("interpretation").innerHTML = "";
+                document.getElementById("interpretation-card").style.display = "none";
+                document.getElementById("conversation-history").innerHTML = "";
+                document.getElementById("follow-up-section").classList.remove("visible");
+                document.getElementById("follow-up-input").value = "";
+                document.getElementById("suggested-questions").classList.remove("visible");
+                document.getElementById("follow-up-thinking").classList.remove("visible");
+                document.getElementById("export-controls").style.display = "none";
+                lastChartData = null;
+                conversationHistory = [];
+                suggestedQuestions = [];
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            /* ── Submit follow-up question ── */
+            async function submitFollowUp() {
+                var input = document.getElementById("follow-up-input");
+                var question = input.value.trim();
+                
+                if (!question || !lastChartData) {
+                    showToast("Please enter a question");
+                    return;
+                }
+                
+                /* Disable inputs */
+                document.getElementById("follow-up-btn").disabled = true;
+                input.disabled = true;
+                
+                /* Hide suggested questions while processing */
+                document.getElementById("suggested-questions").classList.remove("visible");
+                
+                /* Add question to conversation history immediately */
+                addToConversation(question, "", true);
+                input.value = "";
+                
+                /* Show follow-up thinking indicator */
+                var thinkingEl = document.getElementById("follow-up-thinking");
+                if (thinkingEl) thinkingEl.classList.add("visible");
+                
+                var followUpData = {
+                    type: "follow_up",
+                    chart_data: lastChartData,
+                    question: question
+                };
+                
+                try {
+                    await window.Poe.sendUserMessage(
+                        "@PoeAstrologyBot " + JSON.stringify(followUpData),
+                        {
+                            handler: "follow-up-handler",
+                            stream: true,
+                            openChat: false,
+                            parameters: {},
+                        }
+                    );
+                } catch (err) {
+                    document.getElementById("follow-up-btn").disabled = false;
+                    input.disabled = false;
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    var errMsg = err && err.errorType
+                        ? "Could not send message (" + err.errorType + ")"
+                        : "Could not send message. Please try again.";
+                    showToast(errMsg, 5000);
+                }
+            }
+            
+            /* ── Add item to conversation history ── */
+            function addToConversation(question, answer, isStreaming) {
+                var container = document.getElementById("conversation-history");
+                var itemId = "conv-" + conversationHistory.length;
+                
+                conversationHistory.push({ question: question, answer: answer });
+                
+                var itemHtml = '<div class="conversation-item" id="' + itemId + '">' +
+                    '<div class="conversation-question"><i class="fa-solid fa-comment"></i>' + escapeHtml(question) + '</div>' +
+                    '<div class="conversation-answer' + (isStreaming ? ' streaming-cursor' : '') + '">' + (answer ? marked.parse(answer) : '') + '</div>' +
+                    '</div>';
+                
+                container.insertAdjacentHTML('beforeend', itemHtml);
+                return itemId;
+            }
+            
+            /* ── Update last conversation answer ── */
+            function updateLastConversationAnswer(answer, isComplete) {
+                if (conversationHistory.length === 0) return;
+                
+                var lastItem = conversationHistory[conversationHistory.length - 1];
+                lastItem.answer = answer;
+                
+                var itemId = "conv-" + (conversationHistory.length - 1);
+                var answerEl = document.querySelector("#" + itemId + " .conversation-answer");
+                
+                if (answerEl) {
+                    answerEl.innerHTML = marked.parse(answer);
+                    if (isComplete) {
+                        answerEl.classList.remove("streaming-cursor");
+                    } else {
+                        answerEl.classList.add("streaming-cursor");
+                    }
+                }
+            }
+            
+            function escapeHtml(text) {
+                var div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            /* ── Register follow-up handler ── */
+            window.Poe.registerHandler("follow-up-handler", function (result) {
+                var msg = result.responses[0];
+                if (!msg) return;
+                
+                var thinkingEl = document.getElementById("follow-up-thinking");
+                
+                if (msg.status === "error") {
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    document.getElementById("follow-up-btn").disabled = false;
+                    document.getElementById("follow-up-input").disabled = false;
+                    showToast("Error: " + (msg.statusText || "Unknown error"), 5000);
+                    return;
+                }
+                
+                var content = msg.content || "";
+                var textPart = stripJsonBlock(content);
+                
+                if (msg.status === "incomplete") {
+                    updateLastConversationAnswer(textPart, false);
+                    if (thinkingEl) thinkingEl.classList.add("visible");
+                } else if (msg.status === "complete") {
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    document.getElementById("follow-up-btn").disabled = false;
+                    document.getElementById("follow-up-input").disabled = false;
+                    
+                    /* Extract questions and update with clean text */
+                    var extracted = extractSuggestedQuestions(textPart);
+                    updateLastConversationAnswer(extracted.cleanText, true);
+                    
+                    if (extracted.questions.length > 0) {
+                        renderSuggestedQuestions(extracted.questions);
+                    }
+                }
+            });
+
+            /* ── Extract suggested questions from text and strip them ── */
+            function extractSuggestedQuestions(text) {
+                var questions = [];
+                var cleanText = text;
+                
+                var sectionPattern = /\*\*Suggested questions?:?\*\*\s*([\s\S]*?)(?=\n\n\n|\n\*\*[A-Z]|$)/i;
+                var match = text.match(sectionPattern);
+                
+                if (match) {
+                    var fullMatch = match[0];
+                    var section = match[1];
+                    
+                    var lines = section.split('\n');
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        var qMatch = line.match(/^\d+\.\s*\*{0,2}(.+?)\*{0,2}\s*$/);
+                        if (qMatch) {
+                            var q = qMatch[1].trim();
+                            if (q && questions.length < 3) {
+                                questions.push(q);
+                            }
+                        } else if (line.length > 10 && questions.length < 3) {
+                            questions.push(line);
+                        }
+                    }
+                    
+                    cleanText = text.replace(fullMatch, '').trim();
+                }
+                
+                return { questions: questions, cleanText: cleanText };
+            }
+
+            /* ── Render suggested questions as buttons ── */
+            function renderSuggestedQuestions(questions) {
+                var container = document.getElementById("suggested-questions");
+                if (!questions || questions.length === 0) {
+                    container.classList.remove("visible");
+                    return;
+                }
+                
+                suggestedQuestions = questions;
+                
+                var html = '<div class="suggested-questions-title">Suggested questions:</div>';
+                for (var i = 0; i < questions.length; i++) {
+                    html += '<button class="suggested-question-btn" onclick="useSuggestedQuestion(' + i + ')">' +
+                        '<i class="fa-solid fa-lightbulb"></i>' + escapeHtml(questions[i]) + '</button>';
+                }
+                
+                container.innerHTML = html;
+                container.classList.add("visible");
+            }
+
+            /* ── Use a suggested question ── */
+            function useSuggestedQuestion(index) {
+                if (index < 0 || index >= suggestedQuestions.length) return;
+                var input = document.getElementById("follow-up-input");
+                input.value = suggestedQuestions[index];
+                input.focus();
+            }
+
+            /* ── JSON extraction ── */
+            function extractChartData(text) {
+                /* Try fenced code block first */
+                var fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+                var jsonStr = fenced ? fenced[1].trim() : null;
+
+                if (jsonStr) {
+                    try {
+                        var parsed = JSON.parse(jsonStr);
+                        return normaliseChart(parsed);
+                    } catch (_) {
+                        /* fall through */
+                    }
+                }
+
+                /* Try to find a top-level JSON object */
+                var braceStart = text.indexOf("{");
+                if (braceStart !== -1) {
+                    var depth = 0;
+                    var braceEnd = -1;
+                    for (var i = braceStart; i < text.length; i++) {
+                        if (text[i] === "{") {
+                            depth++;
+                        }
+                        if (text[i] === "}") {
+                            depth--;
+                        }
+                        if (depth === 0) {
+                            braceEnd = i;
+                            break;
+                        }
+                    }
+                    if (braceEnd !== -1) {
+                        try {
+                            var parsed2 = JSON.parse(
+                                text.substring(braceStart, braceEnd + 1),
+                            );
+                            return normaliseChart(parsed2);
+                        } catch (_) {
+                            /* not valid JSON */
+                        }
+                    }
+                }
+                return null;
+            }
+
+            /* Accept multiple shapes the bot might return */
+            function normaliseChart(obj) {
+                if (obj.chart && obj.chart.planets) {
+                    return obj.chart;
+                }
+                if (obj.planets) {
+                    return obj;
+                }
+                if (obj.data && obj.data.planets) {
+                    return obj.data;
+                }
+                return null;
+            }
+
+            /* Strip the JSON block from the text to isolate interpretation prose */
+            function stripJsonBlock(text) {
+                var stripped = text.replace(/```(?:json)?[\s\S]*?```/g, "");
+                /* Also strip any bare top-level JSON object */
+                var braceStart = stripped.indexOf("{");
+                if (braceStart !== -1) {
+                    var depth = 0;
+                    var braceEnd = -1;
+                    for (var i = braceStart; i < stripped.length; i++) {
+                        if (stripped[i] === "{") {
+                            depth++;
+                        }
+                        if (stripped[i] === "}") {
+                            depth--;
+                        }
+                        if (depth === 0) {
+                            braceEnd = i;
+                            break;
+                        }
+                    }
+                    if (braceEnd !== -1) {
+                        /* Only strip if it actually parsed as JSON (not random prose braces) */
+                        try {
+                            JSON.parse(stripped.substring(braceStart, braceEnd + 1));
+                            stripped =
+                                stripped.substring(0, braceStart) +
+                                stripped.substring(braceEnd + 1);
+                        } catch (_) {
+                            /* leave it */
+                        }
+                    }
+                }
+                return stripped;
+            }
+
+            /* ── Render Chart Wheel ── */
+            function renderChartWheel(chart) {
+                var container = document.getElementById("chart-wheel");
+                var size = 520;
+                var cx = size / 2;
+                var cy = size / 2;
+                var outerR = 240;
+                var signOuterR = 220;
+                var signInnerR = 180;
+                var planetR = 150;
+                var aspectInnerR = 95;
+
+                var ascLon = (chart.ascendant && chart.ascendant.longitude) || 0;
+                var mcLon = (chart.midheaven && chart.midheaven.longitude) || 0;
+                var house1 = chart.houses && chart.houses["House 1"];
+                var house1Lon = house1 ? house1.longitude : ascLon;
+
+                function lonToAngle(lon) {
+                    return (lon - house1Lon) * (Math.PI / 180) + Math.PI;
+                }
+
+                function polar(angle, r) {
+                    return { x: cx + r * Math.cos(angle), y: cy - r * Math.sin(angle) };
+                }
+
+                var lines = [];
+                lines.push(
+                    '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">',
+                );
+                
+                /* Style to prevent emoji rendering */
+                lines.push('<style>text{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols",sans-serif;font-variant-emoji:text}</style>');
+
+                /* Outer rim */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + outerR + '" fill="none" stroke="var(--gold)" stroke-width="2"/>',
+                );
+                
+                /* Sign ring (outer circle of sign band) */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + signOuterR + '" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
+                );
+                
+                /* Sign ring (inner circle of sign band) - this is also where house cusps end */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + signInnerR + '" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
+                );
+                
+                /* Inner aspect circle - aspect lines are tangent to this */
+                lines.push(
+                    '<circle cx="' + cx + '" cy="' + cy + '" r="' + aspectInnerR + '" fill="none" stroke="var(--gold)" stroke-width="0.5" opacity="0.3" stroke-dasharray="3 3"/>',
+                );
+
+                /* Sign divisions and glyphs */
+                for (var i = 0; i < 12; i++) {
+                    var a = lonToAngle(i * 30);
+                    
+                    /* Sign division lines across the sign band */
+                    var p1 = polar(a, signInnerR);
+                    var p2 = polar(a, outerR);
+                    lines.push(
+                        '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>',
+                    );
+
+                    /* Sign glyph positioned in middle of sign band */
+                    var midA = lonToAngle(i * 30 + 15);
+                    var gPos = polar(midA, (signOuterR + signInnerR) / 2);
+                    var signChar = SIGN_GLYPHS[SIGN_ORDER[i]];
+                    lines.push(
+                        '<text x="' + gPos.x + '" y="' + gPos.y + '" text-anchor="middle" dominant-baseline="central" fill="var(--text-primary)" font-size="20">' +
+                            signChar + '\uFE0E' +
+                            "</text>",
+                    );
+                }
+
+                /* House cusps - extending from center all the way to sign inner circle */
+                for (var h = 1; h <= 12; h++) {
+                    var house = chart.houses && chart.houses["House " + h];
+                    if (!house) continue;
+                    
+                    var ha = lonToAngle(house.longitude);
+                    var hp2 = polar(ha, signInnerR);
+                    var hp1 = polar(ha, 5);
+                    
+                    lines.push(
+                        '<line x1="' + hp1.x + '" y1="' + hp1.y + '" x2="' + hp2.x + '" y2="' + hp2.y + '" stroke="var(--text-muted)" stroke-width="0.8" opacity="0.4"/>',
+                    );
+                }
+
+                /* Angle markers: Asc, Dsc, MC, IC - full length lines like angular house cusps */
+                var anglePositions = [
+                    { lon: ascLon, label: "Asc", color: "var(--gold-light)" },
+                    { lon: (ascLon + 180) % 360, label: "Dsc", color: "var(--gold-light)" },
+                    { lon: mcLon, label: "MC", color: "var(--gold-accent)" },
+                    { lon: (mcLon + 180) % 360, label: "IC", color: "var(--gold-accent)" }
+                ];
+
+                anglePositions.forEach(function(angle) {
+                    var a = lonToAngle(angle.lon);
+                    var p1 = polar(a, 5);
+                    var p2 = polar(a, signInnerR);
+                    var labelPos = polar(a, signInnerR - 15);
+                    
+                    lines.push(
+                        '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="' + angle.color + '" stroke-width="2"/>',
+                    );
+                    lines.push(
+                        '<text x="' + labelPos.x + '" y="' + labelPos.y + '" text-anchor="middle" dominant-baseline="central" fill="' + angle.color + '" font-size="11" font-weight="700">' + angle.label + '</text>',
+                    );
+                });
+
+                /* Aspect lines - drawn tangent to inner circle with spokes to planets */
+                var aspectColors = {
+                    conjunction: "#ffffff",
+                    trine: "#6bcf6b",
+                    sextile: "#5bc0de",
+                    square: "#ff6b6b",
+                    opposition: "#ffd93d",
+                };
+
+                if (chart.aspects) {
+                    /* Draw aspect lines on the inner aspect circle */
+                    for (var ai = 0; ai < chart.aspects.length; ai++) {
+                        var asp = chart.aspects[ai];
+                        var pl1 = chart.planets[asp.planet1];
+                        var pl2 = chart.planets[asp.planet2];
+                        if (!pl1 || !pl2) continue;
+                        
+                        var aa1 = lonToAngle(pl1.longitude);
+                        var aa2 = lonToAngle(pl2.longitude);
+                        var ap1 = polar(aa1, aspectInnerR);
+                        var ap2 = polar(aa2, aspectInnerR);
+                        var color = aspectColors[asp.aspect] || "#888";
+                        var opacity = asp.aspect === 'conjunction' ? 0.85 : 0.5;
+                        var width = asp.aspect === 'conjunction' || asp.aspect === 'square' ? 1.2 : 0.7;
+                        
+                        lines.push(
+                            '<line x1="' + ap1.x + '" y1="' + ap1.y + '" x2="' + ap2.x + '" y2="' + ap2.y + '" stroke="' + color + '" stroke-width="' + width + '" opacity="' + opacity + '"/>',
+                        );
+                    }
+                    
+                    /* Draw spokes from inner aspect circle to planet positions */
+                    var planetsWithAspects = new Set();
+                    for (var aj = 0; aj < chart.aspects.length; aj++) {
+                        planetsWithAspects.add(chart.aspects[aj].planet1);
+                        planetsWithAspects.add(chart.aspects[aj].planet2);
+                    }
+                    
+                    planetsWithAspects.forEach(function(pName) {
+                        var pData = chart.planets[pName];
+                        if (!pData) return;
+                        var pa = lonToAngle(pData.longitude);
+                        var innerPos = polar(pa, aspectInnerR);
+                        var outerPos = polar(pa, planetR);
+                        lines.push(
+                            '<line x1="' + innerPos.x + '" y1="' + innerPos.y + '" x2="' + outerPos.x + '" y2="' + outerPos.y + '" stroke="var(--text-muted)" stroke-width="0.5" opacity="0.4"/>',
+                        );
+                    });
+                }
+
+                /* Planets - with collision detection to avoid overlap */
+                if (chart.planets) {
+                    var planetKeys = Object.keys(chart.planets);
+                    var positionedPlanets = [];
+                    var minAngularDist = 12 * (Math.PI / 180); /* Minimum 12 degrees in radians */
+                    var radiusStep = 18; /* How much to adjust radius per collision */
+                    var maxRadiusOffset = 3; /* Maximum radius levels */
+                    
+                    /* Sort planets by longitude for consistent positioning */
+                    planetKeys.sort(function(a, b) {
+                        return chart.planets[a].longitude - chart.planets[b].longitude;
+                    });
+                    
+                    for (var pi = 0; pi < planetKeys.length; pi++) {
+                        var pName = planetKeys[pi];
+                        var pData = chart.planets[pName];
+                        var pAngle = lonToAngle(pData.longitude);
+                        var pLon = pData.longitude;
+                        
+                        /* Check for collisions with already positioned planets */
+                        var radiusLevel = 0;
+                        for (var pj = 0; pj < positionedPlanets.length; pj++) {
+                            var other = positionedPlanets[pj];
+                            /* Calculate angular distance (shortest path around circle) */
+                            var angleDiff = Math.abs(pAngle - other.angle);
+                            if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
+                            
+                            if (angleDiff < minAngularDist && radiusLevel === other.radiusLevel) {
+                                /* Collision detected at this radius level, try next level */
+                                radiusLevel++;
+                                if (radiusLevel > maxRadiusOffset) radiusLevel = maxRadiusOffset;
+                                /* Re-check from beginning with new radius level */
+                                pj = -1;
+                            }
+                        }
+                        
+                        var finalRadius = planetR - (radiusLevel * radiusStep);
+                        var pPos = polar(pAngle, finalRadius);
+                        positionedPlanets.push({ name: pName, angle: pAngle, longitude: pLon, radiusLevel: radiusLevel });
+                        
+                        var glyph = PLANET_GLYPHS[pName] || pName.charAt(0);
+                        var deg = pData.degree != null ? pData.degree : pData.longitude % 30;
+                        var degStr = Math.floor(deg) + "°";
+                        
+                        /* Planet glyph - large and clear, with variation selector */
+                        lines.push(
+                            '<text x="' + pPos.x + '" y="' + (pPos.y - 4) + '" text-anchor="middle" dominant-baseline="central" fill="var(--planet-glyph)" font-size="22" font-weight="500">' +
+                                glyph + '\uFE0E' +
+                                "</text>",
+                        );
+                        
+                        /* Degree label */
+                        lines.push(
+                            '<text x="' + pPos.x + '" y="' + (pPos.y + 12) + '" text-anchor="middle" dominant-baseline="central" fill="var(--text-secondary)" font-size="9" font-weight="400">' +
+                                degStr +
+                                "</text>",
+                        );
+                    }
+                }
+
+                lines.push("</svg>");
+                container.innerHTML = lines.join("");
+            }
+
+            /* ── Render Planet Table ── */
+            function renderPlanetTable(chart) {
+                var container = document.getElementById("planet-positions");
+                if (!chart.planets) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary)">No planetary data available.</p>';
+                    return;
+                }
+
+                var rows = [
+                    '<table class="planet-table"><thead><tr><th></th><th>Planet</th><th>Sign</th><th>Degree</th></tr></thead><tbody>',
+                ];
+
+                var keys = Object.keys(chart.planets);
+                for (var i = 0; i < keys.length; i++) {
+                    var name = keys[i];
+                    var data = chart.planets[name];
+                    var sign = data.sign || signFromLongitude(data.longitude);
+                    var deg = data.degree != null ? data.degree : data.longitude % 30;
+                    var degStr =
+                        Math.floor(deg) + "\u00B0" + Math.floor((deg % 1) * 60) + "'";
+
+                    rows.push(
+                        "<tr>" +
+                            '<td class="glyph">' +
+                            (PLANET_GLYPHS[name] || "") +
+                            "</td>" +
+                            '<td class="planet-name">' +
+                            name +
+                            "</td>" +
+                            "<td>" +
+                            '<span class="sign-glyph">' + (SIGN_GLYPHS[sign] || "") + '</span> ' +
+                            sign +
+                            "</td>" +
+                            "<td>" +
+                            degStr +
+                            "</td>" +
+                            "</tr>",
+                    );
+                }
+
+                rows.push("</tbody></table>");
+                container.innerHTML = rows.join("");
+            }
+
+            function signFromLongitude(lon) {
+                var idx = Math.floor(lon / 30) % 12;
+                return SIGN_ORDER[idx];
+            }
+
+            /* ── Render Aspect Matrix ── */
+            function renderAspectMatrix(chart) {
+                var container = document.getElementById("aspect-matrix");
+                if (!chart.planets || !chart.aspects) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary)">No aspect data available.</p>';
+                    return;
+                }
+
+                // Get planets in consistent order
+                var planetNames = [
+                    "Sun", "Moon", "Mercury", "Venus", "Mars", 
+                    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", 
+                    "North Node", "Chiron"
+                ].filter(function(p) { return chart.planets[p]; });
+
+                // Build lookup: planet pair -> aspect
+                var aspectLookup = {};
+                for (var i = 0; i < chart.aspects.length; i++) {
+                    var a = chart.aspects[i];
+                    var key1 = a.planet1 + "-" + a.planet2;
+                    var key2 = a.planet2 + "-" + a.planet1;
+                    aspectLookup[key1] = a;
+                    aspectLookup[key2] = a;
+                }
+
+                // Build table
+                var html = ['<table class="aspect-matrix">'];
+                
+                // Header row with planet glyphs
+                html.push('<tr><th></th>');
+                for (var h = 0; h < planetNames.length; h++) {
+                    var glyph = PLANET_GLYPHS[planetNames[h]] || "";
+                    html.push('<th>' + glyph + "</th>");
+                }
+                html.push("</tr>");
+
+                // Data rows
+                for (var r = 0; r < planetNames.length; r++) {
+                    var rowPlanet = planetNames[r];
+                    html.push('<tr>');
+                    
+                    // Row header (planet glyph)
+                    var rowGlyph = PLANET_GLYPHS[rowPlanet] || "";
+                    html.push('<th class="planet-row-header">' + rowGlyph + "</th>");
+
+                    for (var c = 0; c < planetNames.length; c++) {
+                        var colPlanet = planetNames[c];
+                        
+                        if (c >= r) {
+                            // Upper triangle: empty
+                            html.push('<td class="empty"></td>');
+                        } else {
+                            // Lower triangle: check for aspect
+                            var key = rowPlanet + "-" + colPlanet;
+                            var aspect = aspectLookup[key];
+                            
+                            if (aspect) {
+                                var glyph = ASPECT_GLYPHS[aspect.aspect] || "";
+                                var aspectClass = ASPECT_CLASSES[aspect.aspect] || "";
+                                html.push(
+                                    '<td class="aspect-cell ' + aspectClass + '">' +
+                                    glyph + "</td>"
+                                );
+                            } else {
+                                html.push('<td></td>');
+                            }
+                        }
+                    }
+                    
+                    html.push("</tr>");
+                }
+
+                html.push("</table>");
+                container.innerHTML = html.join("");
+            }
+
+            /* ── Allow Enter key to submit ── */
+            document
+                .getElementById("birth-city")
+                .addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") {
+                        submitBirthData();
+                    }
+                });
+
+            /* ── Allow Enter key to submit follow-up ── */
+            document
+                .getElementById("follow-up-input")
+                .addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        submitFollowUp();
+                    }
+                });
+
+            /* ── Show/hide sidereal mode based on zodiac type ── */
+            document
+                .getElementById("zodiac-type")
+                .addEventListener("change", function (e) {
+                    var siderealGroup = document.getElementById("sidereal-mode-group");
+                    siderealGroup.style.display = e.target.value === "sidereal" ? "block" : "none";
+                });
+
+            /* ═══════════════════════════════════════════════════════════
+               EXPORT FUNCTIONS
+               ═══════════════════════════════════════════════════════════ */
+
+            /* ── Show export controls ── */
+            function showExportControls() {
+                var controls = document.getElementById("export-controls");
+                if (controls && lastChartData) {
+                    controls.style.display = "flex";
+                }
+            }
+
+            /* ── Export Chart Wheel as PNG ── */
+            function exportChartPNG() {
+                var svgEl = document.querySelector("#chart-wheel svg");
+                if (!svgEl) {
+                    showToast("No chart available to export", 3000);
+                    return;
+                }
+
+                // Clone SVG and inline CSS variables
+                var svgClone = svgEl.cloneNode(true);
+                var computedStyles = window.getComputedStyle(svgEl);
+                
+                // Resolve CSS variables to actual colors based on current theme
+                var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                var styleMap = {
+                    "var(--gold)": "#d4a843",
+                    "var(--gold-light)": "#f0dca0",
+                    "var(--text-primary)": isLight ? "#2a2a2a" : "#eae0cc",
+                    "var(--text-secondary)": isLight ? "#5a5a5a" : "#9a917e",
+                    "var(--text-muted)": isLight ? "#8a8a8a" : "#6b6458",
+                    "var(--gold-accent)": "#ffeaa7",
+                    "var(--planet-glyph)": isLight ? "#1a1a2e" : "#ffffff"
+                };
+                
+                // Convert CSS variables to inline styles in the cloned SVG
+                var allElements = svgClone.querySelectorAll("*");
+                for (var i = 0; i < allElements.length; i++) {
+                    var el = allElements[i];
+                    var stroke = el.getAttribute("stroke");
+                    var fill = el.getAttribute("fill");
+                    
+                    if (stroke && styleMap[stroke]) {
+                        el.setAttribute("stroke", styleMap[stroke]);
+                    }
+                    if (fill && styleMap[fill]) {
+                        el.setAttribute("fill", styleMap[fill]);
+                    }
+                }
+
+                var svgData = new XMLSerializer().serializeToString(svgClone);
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+                var img = new Image();
+
+                var size = 1040;
+                canvas.width = size;
+                canvas.height = size;
+
+                img.onload = function() {
+                    ctx.fillStyle = "#0e0e1a";
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.drawImage(img, 0, 0, size, size);
+
+                    var link = document.createElement("a");
+                    link.download = "natal-chart.png";
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                    showToast("Chart exported as PNG", 2000);
+                };
+
+                img.onerror = function() {
+                    showToast("Failed to export chart", 3000);
+                };
+
+                var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                var url = URL.createObjectURL(svgBlob);
+                img.src = url;
+            }
+
+            /* ── Export Full Report as PDF ── */
+            async function exportFullPDF() {
+                if (!lastChartData) {
+                    showToast("No chart data available", 3000);
+                    return;
+                }
+
+                // Create an overlay for printing instead of popup (avoids CORS issues)
+                var overlay = document.createElement("div");
+                overlay.id = "print-overlay";
+                overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fff; z-index: 10000; overflow-y: auto; display: none;";
+                
+                var meta = lastChartData.meta || {};
+                
+                // Build printable HTML content
+                var content = '<div style="font-family: Georgia, serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 40px 20px; color: #333;">';
+                
+                // Header
+                content += '<h1 style="font-family: Palatino, Georgia, serif; color: #8b6914; border-bottom: 2px solid #d4a843; padding-bottom: 10px; margin: 0;">Natal Chart Reading</h1>';
+                content += '<p style="color: #666; font-size: 14px; margin-top: 10px;">';
+                content += (meta.date || "Unknown") + ' • ' + (meta.time || "Unknown") + ' • ' + (meta.city || "Unknown");
+                content += '</p><hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                
+                // Big Three
+                content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Big Three</h2><ul>';
+                if (lastChartData.planets && lastChartData.planets.Sun) {
+                    content += '<li><strong>Sun:</strong> ' + lastChartData.planets.Sun.sign + ' at ' + formatDegree(lastChartData.planets.Sun.degree) + '</li>';
+                }
+                if (lastChartData.planets && lastChartData.planets.Moon) {
+                    content += '<li><strong>Moon:</strong> ' + lastChartData.planets.Moon.sign + ' at ' + formatDegree(lastChartData.planets.Moon.degree) + '</li>';
+                }
+                if (lastChartData.ascendant) {
+                    content += '<li><strong>Ascendant:</strong> ' + (lastChartData.ascendant.sign || "") + ' at ' + formatDegree(lastChartData.ascendant.degree) + '</li>';
+                }
+                content += '</ul>';
+                
+                // Chart SVG
+                var chartSvg = document.querySelector("#chart-wheel svg");
+                if (chartSvg) {
+                    var svgClone = chartSvg.cloneNode(true);
+                    var styleMap = {
+                        "var(--gold)": "#d4a843",
+                        "var(--gold-light)": "#f0dca0",
+                        "var(--text-primary)": "#333",
+                        "var(--text-secondary)": "#666",
+                        "var(--text-muted)": "#999",
+                        "var(--gold-accent)": "#ffeaa7",
+                        "var(--planet-glyph)": "#1a1a2e"
+                    };
+                    
+                    var allElements = svgClone.querySelectorAll("*");
+                    for (var i = 0; i < allElements.length; i++) {
+                        var el = allElements[i];
+                        var stroke = el.getAttribute("stroke");
+                        var fill = el.getAttribute("fill");
+                        if (stroke && styleMap[stroke]) el.setAttribute("stroke", styleMap[stroke]);
+                        if (fill && styleMap[fill]) el.setAttribute("fill", styleMap[fill]);
+                    }
+                    
+                    content += '<div style="text-align: center; margin: 20px 0; page-break-inside: avoid;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914;">Natal Chart Wheel</h2>';
+                    content += new XMLSerializer().serializeToString(svgClone);
+                    content += '</div>';
+                }
+                
+                // Planet positions table
+                content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Planetary Positions</h2>';
+                content += '<table style="border-collapse: collapse; width: 100%; margin: 15px 0;"><thead><tr><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Sign</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Degree</th></tr></thead><tbody>';
+                if (lastChartData.planets) {
+                    var planetKeys = Object.keys(lastChartData.planets);
+                    for (var pi = 0; pi < planetKeys.length; pi++) {
+                        var pName = planetKeys[pi];
+                        var pData = lastChartData.planets[pName];
+                        content += '<tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>' + pName + '</strong></td><td style="border: 1px solid #ddd; padding: 8px;">' + (pData.sign || "") + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + formatDegree(pData.degree) + '</td></tr>';
+                    }
+                }
+                content += '</tbody></table>';
+                
+                // Aspects
+                if (lastChartData.aspects && lastChartData.aspects.length > 0) {
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Major Aspects</h2>';
+                    content += '<table style="border-collapse: collapse; width: 100%; margin: 15px 0;"><thead><tr><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet 1</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Aspect</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet 2</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Orb</th></tr></thead><tbody>';
+                    var sortedAspects = lastChartData.aspects.slice().sort(function(a, b) { return a.orb - b.orb; });
+                    for (var ai = 0; ai < Math.min(15, sortedAspects.length); ai++) {
+                        var asp = sortedAspects[ai];
+                        content += '<tr><td style="border: 1px solid #ddd; padding: 8px;">' + asp.planet1 + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.aspect + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.planet2 + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.orb.toFixed(1) + '°</td></tr>';
+                    }
+                    content += '</tbody></table>';
+                }
+                
+                // Interpretation
+                var interpretation = document.getElementById("interpretation");
+                if (interpretation && interpretation.innerHTML.trim()) {
+                    content += '<hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Interpretation</h2>';
+                    content += interpretation.innerHTML;
+                }
+                
+                // Conversation history
+                if (conversationHistory && conversationHistory.length > 0) {
+                    content += '<hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Follow-up Discussion</h2>';
+                    for (var ci = 0; ci < conversationHistory.length; ci++) {
+                        var conv = conversationHistory[ci];
+                        content += '<div style="margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #d4a843; page-break-inside: avoid;">';
+                        content += '<div style="font-weight: bold; color: #8b6914; margin-bottom: 8px;">Q: ' + escapeHtml(conv.question) + '</div>';
+                        content += '<div>' + conv.answer + '</div>';
+                        content += '</div>';
+                    }
+                }
+                
+                content += '</div>';
+                
+                // Add controls
+                var controls = '<div class="print-controls" style="position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; gap: 10px;">';
+                controls += '<button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; background: #d4a843; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Print / Save as PDF</button>';
+                controls += '<button onclick="document.getElementById(\'print-overlay\').remove(); document.body.style.overflow = \'\';" style="padding: 10px 20px; font-size: 14px; background: #666; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>';
+                controls += '</div>';
+                
+                overlay.innerHTML = controls + content;
+                document.body.appendChild(overlay);
+                document.body.style.overflow = "hidden";
+                
+                // Show overlay with animation
+                overlay.style.display = "block";
+                overlay.style.opacity = "0";
+                overlay.style.transition = "opacity 0.3s";
+                setTimeout(function() { overlay.style.opacity = "1"; }, 10);
+                
+                showToast("Click 'Print / Save as PDF' button in top right", 4000);
+            }
+
+            function escapeHtml(text) {
+                var div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            /* ── Export as Markdown ── */
+            function exportMarkdown() {
+                if (!lastChartData) {
+                    showToast("No chart data available", 3000);
+                    return;
+                }
+
+                var md = "";
+                var meta = lastChartData.meta || {};
+                var dateStr = meta.date || "unknown";
+                var filename = "natal-chart-" + dateStr + ".md";
+
+                md += "# Natal Chart Reading\n\n";
+                md += "**Date:** " + (meta.date || "Unknown") + "  \n";
+                md += "**Time:** " + (meta.time || "Unknown") + "  \n";
+                md += "**Location:** " + (meta.city || "Unknown") + "  \n";
+                md += "**Zodiac:** " + (meta.zodiac_type || "Tropical").charAt(0).toUpperCase() + (meta.zodiac_type || "tropical").slice(1) + "  \n";
+                md += "**House System:** " + (meta.house_system || "Placidus").charAt(0).toUpperCase() + (meta.house_system || "placidus").slice(1) + "  \n\n";
+                md += "---\n\n";
+
+                if (lastChartData.ascendant) {
+                    md += "## Big Three\n\n";
+                    if (lastChartData.planets && lastChartData.planets.Sun) {
+                        md += "- **Sun:** " + lastChartData.planets.Sun.sign + " at " + formatDegree(lastChartData.planets.Sun.degree) + "\n";
+                    }
+                    if (lastChartData.planets && lastChartData.planets.Moon) {
+                        md += "- **Moon:** " + lastChartData.planets.Moon.sign + " at " + formatDegree(lastChartData.planets.Moon.degree) + "\n";
+                    }
+                    md += "- **Ascendant:** " + (lastChartData.ascendant.sign || "") + " at " + formatDegree(lastChartData.ascendant.degree) + "\n\n";
+                }
+
+                md += "## Planetary Positions\n\n";
+                md += "| Planet | Sign | Degree |\n";
+                md += "|--------|------|--------|\n";
+                if (lastChartData.planets) {
+                    var planetKeys = Object.keys(lastChartData.planets);
+                    for (var i = 0; i < planetKeys.length; i++) {
+                        var p = lastChartData.planets[planetKeys[i]];
+                        md += "| " + planetKeys[i] + " | " + (p.sign || "") + " | " + formatDegree(p.degree) + " |\n";
+                    }
+                }
+                md += "\n";
+
+                md += "## Major Aspects\n\n";
+                md += "| Planet 1 | Aspect | Planet 2 | Orb |\n";
+                md += "|----------|--------|----------|-----|\n";
+                if (lastChartData.aspects) {
+                    var sortedAspects = lastChartData.aspects.slice().sort(function(a, b) { return a.orb - b.orb; });
+                    for (var j = 0; j < Math.min(15, sortedAspects.length); j++) {
+                        var a = sortedAspects[j];
+                        md += "| " + a.planet1 + " | " + a.aspect + " | " + a.planet2 + " | " + a.orb.toFixed(1) + "° |\n";
+                    }
+                }
+                md += "\n---\n\n";
+
+                var interpretation = document.getElementById("interpretation");
+                if (interpretation && interpretation.innerText.trim()) {
+                    md += "## Interpretation\n\n";
+                    md += interpretation.innerText.trim() + "\n\n";
+                }
+
+                var conversation = document.getElementById("conversation-history");
+                if (conversation && conversation.innerText.trim()) {
+                    md += "---\n\n## Follow-up Discussion\n\n";
+                    var items = conversation.querySelectorAll(".conversation-item");
+                    for (var k = 0; k < items.length; k++) {
+                        var qEl = items[k].querySelector(".conversation-question");
+                        var aEl = items[k].querySelector(".conversation-answer");
+                        if (qEl) {
+                            md += "### Q: " + qEl.innerText.replace(/^[^\s]+\s*/, "") + "\n\n";
+                        }
+                        if (aEl) {
+                            md += aEl.innerText.trim() + "\n\n";
+                        }
+                    }
+                }
+
+                var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+                showToast("Markdown exported", 2000);
+            }
+
+            function formatDegree(deg) {
+                if (deg == null) return "—";
+                var d = Math.floor(deg);
+                var m = Math.floor((deg % 1) * 60);
+                return d + "°" + (m < 10 ? "0" : "") + m + "'";
+            }
+        </script>
+    </body>
+</html>
