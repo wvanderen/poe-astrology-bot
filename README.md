@@ -1,188 +1,148 @@
-# Poe server bot quick start
+# Poe Astrology Bot
 
-Welcome to the Poe server bot quick start.
+A natal chart calculation and interpretation bot for the [Poe platform](https://poe.com). Features a rich Canvas app frontend with interactive SVG chart wheels and LLM-powered interpretations.
 
-This repository serves as a companion to our
-[tutorial](https://creator.poe.com/docs/quick-start) and contains starter code that
-allows you to quickly get a bot running. The following are some of the examples included
-in this repo.
+## Features
 
-Note that the starter code assumes you have Modal setup for deployment (the instructions
-for which are described in the aforementioned
-[tutorial](https://creator.poe.com/docs/quick-start)).
+- **Accurate Chart Calculation**: Uses Swiss Ephemeris (pyswisseph) for precise planetary positions
+- **Interactive Canvas App**: Beautiful SVG chart wheel with dark/light themes
+- **LLM Interpretations**: Streaming astrological readings from Claude, GPT, Gemini, and other Poe models
+- **Multiple House Systems**: Placidus, Whole Sign, Equal, Koch, Regiomontanus, Campanus, Porphyry
+- **Tropical & Sidereal Zodiacs**: Includes Lahiri, Fagan-Bradley, Raman, Krishnamurti ayanamsas
+- **Transit Overlays**: Compare current planetary positions to natal chart
+- **Follow-up Q&A**: Ask questions about your chart with full context
+- **Export Options**: Download as PNG, PDF, or Markdown
 
-### EchoBot
+## Architecture
 
-- This bot simply repeats the user's query in the response.
-- Before you build any server bots, you should start with reproducing this bot.
-- This will ensure that your have a working fastapi_poe and modal setup.
-- To deploy, run `modal deploy echobot.py`
+```
+┌─────────────────┐     ┌─────────────────┐     ┌──────────────────┐
+│  Canvas App     │────▶│  Astrology Bot  │────▶│  LLM (Poe API)   │
+│  (index.html)   │     │  (FastAPI)      │     │  (Claude/GPT/etc)│
+└─────────────────┘     └────────┬────────┘     └──────────────────┘
+                                 │
+                        ┌────────▼────────┐
+                        │  Chart Engine   │
+                        │  (pyswisseph)   │
+                        └─────────────────┘
+```
 
-A correct implementation would look like https://poe.com/EchoBotDemo
+## Quick Start
 
-### PromptBot
+### Prerequisites
 
-- This bot is an implementation of the prompt bot as a server bot.
-- It demonstrates how to use the Poe platform to cover the inference costs for your
-  chatbot.
-- This bot uses Claude-3-Haiku and the system prompt instructs the bot to produce
-  Haikus.
-- If you intend to call Poe server to build your bot response, you should check if you
-  can reproduce this bot.
-- To deploy, run `modal deploy prompt_bot.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
+- Python 3.11+
+- [Modal](https://modal.com) account for deployment
+- Poe bot access key (optional for local dev)
 
-A correct implementation would look like https://poe.com/PromptBotDemo
+### Setup
 
-### WrapperBot
+1. **Clone and install dependencies:**
+   ```bash
+   git clone <repo-url>
+   cd poe-astrology-bot
+   pip install -r requirements.txt
+   ```
 
-- This bot is an implementation of the prompt bot as a server bot, but your own model
-  provider API key.
-- It demostrates how to wrap OpenAI API.
-- You will need your OpenAI API key.
-- To deploy, run `modal deploy wrapper_bot.py`
+2. **Download Swiss Ephemeris data:**
+   ```bash
+   python setup_ephe.py
+   ```
 
-A correct implementation would look like https://poe.com/WrapperBotDemo
+3. **Run locally:**
+   ```bash
+   uvicorn astrology_bot:fastapi_app --reload
+   ```
 
-### SDXLBot
+### Deploy to Modal
 
-- This bot demonstrates how to wrap an image generation endpoint.
-- It uses Fireworks AI's StableDiffusionXL endpoint. You will need to provide your own
-  key for this.
-- Alternatively, you can change the URL to point at a different provider or model.
-- To deploy, run `modal deploy sdxl_bot.py`
+```bash
+modal deploy astrology_bot.py
+```
 
-A correct implementation would look like https://poe.com/StableDiffusionXL
+### Configure Poe Bot
 
-### CatBot
+1. Go to [Poe Creator Dashboard](https://poe.com/create_bot)
+2. Create a new Server Bot
+3. Set the endpoint to your Modal URL
+4. Upload `canvas/index.html` as the Canvas app
+5. Set environment variables:
+   - `POE_ACCESS_KEY`: Your bot's access key
+   - `POE_BOT_NAME`: Your bot's name
+   - `POE_MODEL`: Default model (e.g., `Claude-Sonnet-4.6`)
 
-- A sample bot that demonstrates the Markdown capabilities of the Poe API.
-- See instructions [here](./catbot.md).
-- To deploy, run `modal deploy catbot.py`
+## Project Structure
 
-A correct implementation would look like https://poe.com/CatBotDemo
+```
+poe-astrology-bot/
+├── astrology_bot.py       # Main FastAPI bot (fastapi_poe)
+├── chart_engine.py        # Swiss Ephemeris chart calculations
+├── setup_ephe.py          # Downloads ephemeris data files
+├── canvas/
+│   └── index.html         # Canvas app (form + SVG wheel rendering)
+├── ephe/                  # Swiss Ephemeris data files
+├── requirements.txt       # Python dependencies
+├── .env.example          # Configuration template
+└── LIVING_SPEC.md        # Detailed architecture notes
+```
 
-### ImageResponseBot
+## Configuration
 
-- A bot that demonstrates how to render an image in the response using Markdown.
-- To deploy, run `modal deploy image_response_bot.py`
+### Environment Variables
 
-A correct implementation would look like https://poe.com/ImageResponseBotDemo
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `POE_ACCESS_KEY` | Bot access key from Poe | None |
+| `POE_BOT_NAME` | Bot name on Poe | None |
+| `POE_MODEL` | Default LLM for interpretations | `Kimi-K2.5` |
 
-### VideoBot
+### Chart Options
 
-- A bot that demonstrates how to attach files to your bot response. This example
-  specifically uses video, but outputting other file types is fairly similar.
-- To deploy, run `modal deploy video_bot.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
+The Canvas app supports:
 
-A correct implementation would look like https://poe.com/VideoBotDemo
+- **House Systems**: Placidus, Whole Sign, Equal, Koch, Regiomontanus, Campanus, Porphyry
+- **Zodiac Type**: Tropical (Western) or Sidereal (Vedic)
+- **Sidereal Ayanamsas**: Lahiri, Fagan-Bradley, Raman, Krishnamurti, Jyotish
+- **Interpretation Models**: Claude, GPT, Gemini, Kimi, and more
 
-### PDFCounterBot
+## API Protocol
 
-- A bot that demonstrates how to enable file upload for the users of your bot.
-- To deploy, run `modal deploy pdf_counter_bot.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
+The bot communicates with the Canvas app via JSON messages:
 
-A correct implementation would look like https://poe.com/PDFCounterBotDemo
+### Birth Data Request
+```json
+{
+  "type": "birth_data",
+  "date": "1992-10-28",
+  "time": "22:30",
+  "city": "Austin, TX",
+  "house_system": "placidus",
+  "zodiac_type": "tropical",
+  "model": "Claude-Sonnet-4.6"
+}
+```
 
-### FunctionCallingBot
+### Chart Response
+```json
+{
+  "type": "chart_result",
+  "chart": {
+    "planets": {"Sun": {"sign": "Scorpio", "degree": 5.24}, ...},
+    "houses": {"1st": {"sign": "Aquarius", "degree": 12.3}, ...},
+    "aspects": [{"planet1": "Sun", "planet2": "Moon", "aspect": "trine", "orb": 2.1}, ...],
+    "ascendant": {"sign": "Aquarius", "degree": 12.3},
+    "midheaven": {"sign": "Scorpio", "degree": 8.45}
+  }
+}
+```
 
-- A bot that demonstrates how to use the Poe API for function calling.
-- To deploy, run `modal deploy function_calling_bot.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
+## Dependencies
 
-A correct implementation would look like https://poe.com/FunctionCallingDemo
+- **fastapi-poe**: Poe bot framework
+- **pyswisseph**: Swiss Ephemeris bindings
+- **timezonefinder**: Timezone lookup from coordinates
+- **geopy**: Geocoding (city name to coordinates)
 
-### FunctionCallingLoopBot
+## License
 
-- A bot that manages a function calling loop and preserves function (tool) details in
-  the chat for later user queries.
-- To deploy, run `modal deploy function_calling_loop_bot.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
-
-A correct implementation would look like https://poe.com/FunctionCallingLoopDemo
-
-### LogBot
-
-- Illustrate what is contained in the QueryRequest object.
-- To deploy, run `modal deploy log_bot.py`
-
-A correct implementation would look like https://poe.com/LogBotDemo
-
-### HTTPRequestBot
-
-- Provides an example of how to access HTTP request information in your bot.
-- To deploy, run `modal deploy http_request_bot.py`
-
-A correct implementation would look like https://poe.com/HTTPRequestBotDemo
-
-### TurboAllCapsBot
-
-- This bot responds to the user's query using GPT-3.5-Turbo.
-- It demonstrates how to use the Poe platform to cover the inference costs for your
-  chatbot.
-- To deploy, run `modal deploy turbo_allcapsbot.py`.
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
-
-A correct implementation would look like https://poe.com/AllCapsBotDemo
-
-### TurboVsClaudeBot
-
-- This is a more advanced example that demonstrates how to render output in realtime
-  comparing two different bots.
-- To deploy, run `modal deploy turbo_vs_claude.py`
-- Before you are able to use the bot, you also need to synchronize the bot's settings
-  with the Poe Platform, the instructions for which are specified
-  [here](https://creator.poe.com/docs/server-bots-functional-guides#updating-bot-settings).
-
-A correct implementation would look like https://poe.com/TurboVsClaudeBotDemo
-
-### ClothingRecommenderBot
-
-- An example bot that takes in a user-uploaded image, analyzes it with Claude-3.5-Sonnet
-  to recommend a new top, and then generates an image of the new clothing with Imagen-3
-  to return to the user.
-- This is a good starting point for handling user-uploaded attachments, and also
-  returning attachments with your bot.
-- To deploy, run `modal deploy new_top_recommender.py`
-
-A correct implementation would look like https://poe.com/TopRecommender
-
-### PythonRunnerBot
-
-- An example bot that generates code based on the user query, runs it with the @Python
-  bot, and attempts to debug it if there's any issue.
-- This is a good starting point for chaining requests to various text models.
-- To deploy, run `modal deploy python_runner.py`
-
-A correct implementation would look like https://poe.com/PythonCodeRunner
-
-### AstrologyBot
-
-- A sophisticated natal chart calculation and interpretation bot.
-- Features:
-  - Calculates birth charts using Swiss Ephemeris (pyswisseph)
-  - Renders interactive SVG chart wheels with planets, houses, and aspects
-  - Provides LLM-powered astrological interpretations via Claude-3.5-Sonnet
-  - Supports transit overlays for current planetary positions
-  - Follow-up Q&A about chart details
-- Setup:
-  1. Run `python setup_ephe.py` to download Swiss Ephemeris data files
-  2. Deploy with `modal deploy astrology_bot.py`
-  3. Upload `canvas/index.html` to Poe Creator Dashboard as Canvas app
-- Dependencies: fastapi-poe, pyswisseph, timezonefinder, geopy
-
-See `LIVING_SPEC.md` for detailed architecture and implementation notes.
+MIT
