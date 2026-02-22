@@ -150,6 +150,34 @@
                 text-align: center;
             }
 
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 8px;
+            }
+
+            .header-link {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 10px 14px;
+                cursor: pointer;
+                color: var(--gold);
+                font-size: 1.1rem;
+                transition: background 0.2s, border-color 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+            }
+
+            .header-link:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+                transform: scale(1.05);
+            }
+
             .theme-toggle {
                 background: var(--bg-card);
                 border: 1px solid var(--border);
@@ -162,7 +190,6 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-top: 8px;
             }
 
             .theme-toggle:hover {
@@ -893,8 +920,11 @@
                     align-items: center;
                     gap: 12px;
                 }
-                .theme-toggle {
+                .header-actions {
                     margin-top: 0;
+                }
+                .header-link,
+                .theme-toggle {
                     padding: 8px 12px;
                     font-size: 1rem;
                 }
@@ -1004,9 +1034,20 @@
                         <h1>Natal Chart Reading</h1>
                         <p>Powered by PoeAstrologyBot</p>
                     </div>
-                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
-                        <i class="fa-solid fa-sun" id="theme-icon"></i>
-                    </button>
+                    <div class="header-actions">
+                        <a href="https://github.com/wvanderen/poe-astrology-bot" target="_blank" class="header-link" title="View source on GitHub">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="https://github.com/wvanderen/poe-astrology-bot/releases" target="_blank" class="header-link" title="Changelog">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </a>
+                        <a href="https://github.com/wvanderen/poe-astrology-bot/issues/new" target="_blank" class="header-link" title="Submit feedback or report issue">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </a>
+                        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                            <i class="fa-solid fa-sun" id="theme-icon"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
