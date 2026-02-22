@@ -28,6 +28,41 @@
                 --error-bg: rgba(220, 60, 60, 0.12);
                 --error-border: rgba(220, 60, 60, 0.4);
                 --error-text: #e87070;
+                --planet-glyph: #ffffff;
+                --input-bg: rgba(0, 0, 0, 0.35);
+            }
+
+            [data-theme="light"] {
+                --gold: #b8912e;
+                --gold-light: #d4a843;
+                --gold-dim: rgba(184, 145, 46, 0.15);
+                --gold-accent: #c9a227;
+                --bg-deep: #f5f3ef;
+                --bg-card: rgba(255, 255, 255, 0.8);
+                --bg-card-hover: rgba(255, 255, 255, 0.95);
+                --border: rgba(184, 145, 46, 0.3);
+                --text-primary: #2a2a2a;
+                --text-secondary: #5a5a5a;
+                --text-muted: #8a8a8a;
+                --error-bg: rgba(220, 60, 60, 0.08);
+                --error-border: rgba(220, 60, 60, 0.3);
+                --error-text: #c65050;
+                --planet-glyph: #1a1a2e;
+                --input-bg: rgba(0, 0, 0, 0.05);
+            }
+
+            [data-theme="light"] body::before {
+                background:
+                    radial-gradient(
+                        ellipse 80% 60% at 20% 10%,
+                        rgba(212, 168, 67, 0.08),
+                        transparent
+                    ),
+                    radial-gradient(
+                        ellipse 60% 50% at 80% 90%,
+                        rgba(100, 80, 40, 0.05),
+                        transparent
+                    );
             }
 
             * {
@@ -103,6 +138,39 @@
                 font-weight: 300;
             }
 
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .header-title {
+                flex: 1;
+                text-align: center;
+            }
+
+            .theme-toggle {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 10px 14px;
+                cursor: pointer;
+                color: var(--gold);
+                font-size: 1.1rem;
+                transition: background 0.2s, border-color 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 8px;
+            }
+
+            .theme-toggle:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+                transform: scale(1.05);
+            }
+
             /* Form Card */
             .birth-form {
                 background: var(--bg-card);
@@ -147,7 +215,7 @@
                 padding: 12px 14px;
                 border: 1px solid var(--border);
                 border-radius: 10px;
-                background: rgba(0, 0, 0, 0.35);
+                background: var(--input-bg);
                 color: var(--text-primary);
                 font-family: "Nunito Sans", sans-serif;
                 font-size: 16px;
@@ -172,6 +240,7 @@
             select {
                 cursor: pointer;
                 appearance: none;
+                background-color: var(--input-bg);
                 background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a917e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
                 background-repeat: no-repeat;
                 background-position: right 14px center;
@@ -183,10 +252,24 @@
                 color: var(--text-primary);
             }
 
-            /* colorScheme for dark date/time pickers */
+            [data-theme="light"] select option {
+                background: #fff;
+                color: #333;
+            }
+
+            [data-theme="light"] select {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5a5a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            }
+
+            /* colorScheme for date/time pickers */
             input[type="date"],
             input[type="time"] {
                 color-scheme: dark;
+            }
+
+            [data-theme="light"] input[type="date"],
+            [data-theme="light"] input[type="time"] {
+                color-scheme: light;
             }
 
             .btn-primary {
@@ -803,7 +886,17 @@
                 }
 
                 .header h1 {
-                    font-size: 1.8rem;
+                    font-size: 1.6rem;
+                }
+                .header-content {
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .theme-toggle {
+                    margin-top: 0;
+                    padding: 8px 12px;
+                    font-size: 1rem;
                 }
                 .page-wrapper {
                     padding: 16px 12px 48px;
@@ -814,6 +907,53 @@
                 .card {
                     padding: 18px 14px;
                 }
+            }
+
+            /* Export Controls */
+            .export-controls {
+                display: flex;
+                gap: 12px;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid var(--border);
+                flex-wrap: wrap;
+            }
+
+            .export-controls-title {
+                width: 100%;
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                margin-bottom: 4px;
+            }
+
+            .btn-export {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 14px;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.85rem;
+                color: var(--text-primary);
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+            }
+
+            .btn-export:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            .btn-export i {
+                color: var(--gold);
+                font-size: 0.9rem;
+            }
+
+            .btn-export:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
             }
 
             /* Animations */
@@ -838,14 +978,36 @@
                     transform: translateY(0);
                 }
             }
+
+            /* Print styles - hide main page when overlay is active */
+            @media print {
+                body > *:not(#print-overlay) {
+                    display: none !important;
+                }
+                #print-overlay {
+                    display: block !important;
+                    position: static !important;
+                    overflow: visible !important;
+                }
+                .print-controls {
+                    display: none !important;
+                }
+            }
         </style>
     </head>
     <body>
         <div class="page-wrapper">
             <!-- Header -->
             <div class="header">
-                <h1>Natal Chart Reading</h1>
-                <p>Powered by PoeAstrologyBot</p>
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1>Natal Chart Reading</h1>
+                        <p>Powered by PoeAstrologyBot</p>
+                    </div>
+                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                        <i class="fa-solid fa-sun" id="theme-icon"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Birth Data Form -->
@@ -922,7 +1084,7 @@
                             id="initial-context"
                             rows="2"
                             placeholder="e.g. 'Focus on career' or 'What does my chart say about relationships?'"
-                            style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.35); color: var(--text-primary); font-family: 'Nunito Sans', sans-serif; font-size: 16px; resize: vertical; min-height: 48px; transition: border-color 0.25s, box-shadow 0.25s;"
+                            style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--input-bg); color: var(--text-primary); font-family: 'Nunito Sans', sans-serif; font-size: 16px; resize: vertical; min-height: 48px; transition: border-color 0.25s, box-shadow 0.25s;"
                         ></textarea>
                     </div>
                 </div>
@@ -1008,6 +1170,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="export-controls" id="export-controls" style="display: none;">
+                        <div class="export-controls-title">Export your reading:</div>
+                        <button class="btn-export" onclick="exportChartPNG()" title="Download chart wheel as PNG">
+                            <i class="fa-solid fa-image"></i> PNG
+                        </button>
+                        <button class="btn-export" onclick="exportFullPDF()" title="Download full report as PDF">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn-export" onclick="exportMarkdown()" title="Download as Markdown">
+                            <i class="fa-solid fa-file-lines"></i> Markdown
+                        </button>
+                    </div>
                 </div>
 
                 <button class="btn-secondary" onclick="resetForm()">
@@ -1027,6 +1202,41 @@
             var lastChartData = null;
             var conversationHistory = [];
             var suggestedQuestions = [];
+
+            /* ── Theme Management ── */
+            function initTheme() {
+                var savedTheme = 'dark';
+                try {
+                    savedTheme = localStorage.getItem('chart-theme') || 'dark';
+                } catch (e) {
+                    // localStorage not available in sandboxed iframe
+                }
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            }
+
+            function toggleTheme() {
+                var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                try {
+                    localStorage.setItem('chart-theme', newTheme);
+                } catch (e) {
+                    // localStorage not available in sandboxed iframe, theme resets on page reload
+                }
+                updateThemeIcon(newTheme);
+                showToast(newTheme === 'light' ? 'Light mode enabled' : 'Dark mode enabled', 1500);
+            }
+
+            function updateThemeIcon(theme) {
+                var icon = document.getElementById('theme-icon');
+                if (icon) {
+                    icon.className = theme === 'light' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+                }
+            }
+
+            // Initialize theme on load
+            initTheme();
 
             /* ── Glyph Maps ── */
             const SIGN_GLYPHS = {
@@ -1166,6 +1376,7 @@
                     /* Show follow-up section */
                     if (lastChartData) {
                         document.getElementById("follow-up-section").classList.add("visible");
+                        showExportControls();
                     }
 
                     /* Extract and display suggested questions, strip from interpretation */
@@ -1219,6 +1430,7 @@
                 conversationHistory = [];
                 document.getElementById("conversation-history").innerHTML = "";
                 document.getElementById("follow-up-section").classList.remove("visible");
+                document.getElementById("export-controls").style.display = "none";
 
                 var model = document.getElementById("model-select").value;
 
@@ -1274,6 +1486,7 @@
                 document.getElementById("follow-up-input").value = "";
                 document.getElementById("suggested-questions").classList.remove("visible");
                 document.getElementById("follow-up-thinking").classList.remove("visible");
+                document.getElementById("export-controls").style.display = "none";
                 lastChartData = null;
                 conversationHistory = [];
                 suggestedQuestions = [];
@@ -1773,7 +1986,7 @@
                         
                         /* Planet glyph - large and clear, with variation selector */
                         lines.push(
-                            '<text x="' + pPos.x + '" y="' + (pPos.y - 4) + '" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="22" font-weight="500">' +
+                            '<text x="' + pPos.x + '" y="' + (pPos.y - 4) + '" text-anchor="middle" dominant-baseline="central" fill="var(--planet-glyph)" font-size="22" font-weight="500">' +
                                 glyph + '\uFE0E' +
                                 "</text>",
                         );
@@ -1944,6 +2157,323 @@
                     var siderealGroup = document.getElementById("sidereal-mode-group");
                     siderealGroup.style.display = e.target.value === "sidereal" ? "block" : "none";
                 });
+
+            /* ═══════════════════════════════════════════════════════════
+               EXPORT FUNCTIONS
+               ═══════════════════════════════════════════════════════════ */
+
+            /* ── Show export controls ── */
+            function showExportControls() {
+                var controls = document.getElementById("export-controls");
+                if (controls && lastChartData) {
+                    controls.style.display = "flex";
+                }
+            }
+
+            /* ── Export Chart Wheel as PNG ── */
+            function exportChartPNG() {
+                var svgEl = document.querySelector("#chart-wheel svg");
+                if (!svgEl) {
+                    showToast("No chart available to export", 3000);
+                    return;
+                }
+
+                // Clone SVG and inline CSS variables
+                var svgClone = svgEl.cloneNode(true);
+                var computedStyles = window.getComputedStyle(svgEl);
+                
+                // Resolve CSS variables to actual colors based on current theme
+                var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                var styleMap = {
+                    "var(--gold)": "#d4a843",
+                    "var(--gold-light)": "#f0dca0",
+                    "var(--text-primary)": isLight ? "#2a2a2a" : "#eae0cc",
+                    "var(--text-secondary)": isLight ? "#5a5a5a" : "#9a917e",
+                    "var(--text-muted)": isLight ? "#8a8a8a" : "#6b6458",
+                    "var(--gold-accent)": "#ffeaa7",
+                    "var(--planet-glyph)": isLight ? "#1a1a2e" : "#ffffff"
+                };
+                
+                // Convert CSS variables to inline styles in the cloned SVG
+                var allElements = svgClone.querySelectorAll("*");
+                for (var i = 0; i < allElements.length; i++) {
+                    var el = allElements[i];
+                    var stroke = el.getAttribute("stroke");
+                    var fill = el.getAttribute("fill");
+                    
+                    if (stroke && styleMap[stroke]) {
+                        el.setAttribute("stroke", styleMap[stroke]);
+                    }
+                    if (fill && styleMap[fill]) {
+                        el.setAttribute("fill", styleMap[fill]);
+                    }
+                }
+
+                var svgData = new XMLSerializer().serializeToString(svgClone);
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+                var img = new Image();
+
+                var size = 1040;
+                canvas.width = size;
+                canvas.height = size;
+
+                img.onload = function() {
+                    ctx.fillStyle = "#0e0e1a";
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.drawImage(img, 0, 0, size, size);
+
+                    var link = document.createElement("a");
+                    link.download = "natal-chart.png";
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                    showToast("Chart exported as PNG", 2000);
+                };
+
+                img.onerror = function() {
+                    showToast("Failed to export chart", 3000);
+                };
+
+                var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                var url = URL.createObjectURL(svgBlob);
+                img.src = url;
+            }
+
+            /* ── Export Full Report as PDF ── */
+            async function exportFullPDF() {
+                if (!lastChartData) {
+                    showToast("No chart data available", 3000);
+                    return;
+                }
+
+                // Create an overlay for printing instead of popup (avoids CORS issues)
+                var overlay = document.createElement("div");
+                overlay.id = "print-overlay";
+                overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fff; z-index: 10000; overflow-y: auto; display: none;";
+                
+                var meta = lastChartData.meta || {};
+                
+                // Build printable HTML content
+                var content = '<div style="font-family: Georgia, serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 40px 20px; color: #333;">';
+                
+                // Header
+                content += '<h1 style="font-family: Palatino, Georgia, serif; color: #8b6914; border-bottom: 2px solid #d4a843; padding-bottom: 10px; margin: 0;">Natal Chart Reading</h1>';
+                content += '<p style="color: #666; font-size: 14px; margin-top: 10px;">';
+                content += (meta.date || "Unknown") + ' • ' + (meta.time || "Unknown") + ' • ' + (meta.city || "Unknown");
+                content += '</p><hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                
+                // Big Three
+                content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Big Three</h2><ul>';
+                if (lastChartData.planets && lastChartData.planets.Sun) {
+                    content += '<li><strong>Sun:</strong> ' + lastChartData.planets.Sun.sign + ' at ' + formatDegree(lastChartData.planets.Sun.degree) + '</li>';
+                }
+                if (lastChartData.planets && lastChartData.planets.Moon) {
+                    content += '<li><strong>Moon:</strong> ' + lastChartData.planets.Moon.sign + ' at ' + formatDegree(lastChartData.planets.Moon.degree) + '</li>';
+                }
+                if (lastChartData.ascendant) {
+                    content += '<li><strong>Ascendant:</strong> ' + (lastChartData.ascendant.sign || "") + ' at ' + formatDegree(lastChartData.ascendant.degree) + '</li>';
+                }
+                content += '</ul>';
+                
+                // Chart SVG
+                var chartSvg = document.querySelector("#chart-wheel svg");
+                if (chartSvg) {
+                    var svgClone = chartSvg.cloneNode(true);
+                    var styleMap = {
+                        "var(--gold)": "#d4a843",
+                        "var(--gold-light)": "#f0dca0",
+                        "var(--text-primary)": "#333",
+                        "var(--text-secondary)": "#666",
+                        "var(--text-muted)": "#999",
+                        "var(--gold-accent)": "#ffeaa7",
+                        "var(--planet-glyph)": "#1a1a2e"
+                    };
+                    
+                    var allElements = svgClone.querySelectorAll("*");
+                    for (var i = 0; i < allElements.length; i++) {
+                        var el = allElements[i];
+                        var stroke = el.getAttribute("stroke");
+                        var fill = el.getAttribute("fill");
+                        if (stroke && styleMap[stroke]) el.setAttribute("stroke", styleMap[stroke]);
+                        if (fill && styleMap[fill]) el.setAttribute("fill", styleMap[fill]);
+                    }
+                    
+                    content += '<div style="text-align: center; margin: 20px 0; page-break-inside: avoid;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914;">Natal Chart Wheel</h2>';
+                    content += new XMLSerializer().serializeToString(svgClone);
+                    content += '</div>';
+                }
+                
+                // Planet positions table
+                content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Planetary Positions</h2>';
+                content += '<table style="border-collapse: collapse; width: 100%; margin: 15px 0;"><thead><tr><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Sign</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Degree</th></tr></thead><tbody>';
+                if (lastChartData.planets) {
+                    var planetKeys = Object.keys(lastChartData.planets);
+                    for (var pi = 0; pi < planetKeys.length; pi++) {
+                        var pName = planetKeys[pi];
+                        var pData = lastChartData.planets[pName];
+                        content += '<tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>' + pName + '</strong></td><td style="border: 1px solid #ddd; padding: 8px;">' + (pData.sign || "") + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + formatDegree(pData.degree) + '</td></tr>';
+                    }
+                }
+                content += '</tbody></table>';
+                
+                // Aspects
+                if (lastChartData.aspects && lastChartData.aspects.length > 0) {
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Major Aspects</h2>';
+                    content += '<table style="border-collapse: collapse; width: 100%; margin: 15px 0;"><thead><tr><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet 1</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Aspect</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Planet 2</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left; background: #f5f5f5; font-weight: bold;">Orb</th></tr></thead><tbody>';
+                    var sortedAspects = lastChartData.aspects.slice().sort(function(a, b) { return a.orb - b.orb; });
+                    for (var ai = 0; ai < Math.min(15, sortedAspects.length); ai++) {
+                        var asp = sortedAspects[ai];
+                        content += '<tr><td style="border: 1px solid #ddd; padding: 8px;">' + asp.planet1 + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.aspect + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.planet2 + '</td><td style="border: 1px solid #ddd; padding: 8px;">' + asp.orb.toFixed(1) + '°</td></tr>';
+                    }
+                    content += '</tbody></table>';
+                }
+                
+                // Interpretation
+                var interpretation = document.getElementById("interpretation");
+                if (interpretation && interpretation.innerHTML.trim()) {
+                    content += '<hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Interpretation</h2>';
+                    content += interpretation.innerHTML;
+                }
+                
+                // Conversation history
+                if (conversationHistory && conversationHistory.length > 0) {
+                    content += '<hr style="border: none; border-top: 1px solid #d4a843; margin: 20px 0;">';
+                    content += '<h2 style="font-family: Palatino, Georgia, serif; color: #8b6914; margin-top: 30px;">Follow-up Discussion</h2>';
+                    for (var ci = 0; ci < conversationHistory.length; ci++) {
+                        var conv = conversationHistory[ci];
+                        content += '<div style="margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #d4a843; page-break-inside: avoid;">';
+                        content += '<div style="font-weight: bold; color: #8b6914; margin-bottom: 8px;">Q: ' + escapeHtml(conv.question) + '</div>';
+                        content += '<div>' + conv.answer + '</div>';
+                        content += '</div>';
+                    }
+                }
+                
+                content += '</div>';
+                
+                // Add controls
+                var controls = '<div class="print-controls" style="position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; gap: 10px;">';
+                controls += '<button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; background: #d4a843; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Print / Save as PDF</button>';
+                controls += '<button onclick="document.getElementById(\'print-overlay\').remove(); document.body.style.overflow = \'\';" style="padding: 10px 20px; font-size: 14px; background: #666; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>';
+                controls += '</div>';
+                
+                overlay.innerHTML = controls + content;
+                document.body.appendChild(overlay);
+                document.body.style.overflow = "hidden";
+                
+                // Show overlay with animation
+                overlay.style.display = "block";
+                overlay.style.opacity = "0";
+                overlay.style.transition = "opacity 0.3s";
+                setTimeout(function() { overlay.style.opacity = "1"; }, 10);
+                
+                showToast("Click 'Print / Save as PDF' button in top right", 4000);
+            }
+
+            function escapeHtml(text) {
+                var div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function escapeHtml(text) {
+                var div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            /* ── Export as Markdown ── */
+            function exportMarkdown() {
+                if (!lastChartData) {
+                    showToast("No chart data available", 3000);
+                    return;
+                }
+
+                var md = "";
+                var meta = lastChartData.meta || {};
+                var dateStr = meta.date || "unknown";
+                var filename = "natal-chart-" + dateStr + ".md";
+
+                md += "# Natal Chart Reading\n\n";
+                md += "**Date:** " + (meta.date || "Unknown") + "  \n";
+                md += "**Time:** " + (meta.time || "Unknown") + "  \n";
+                md += "**Location:** " + (meta.city || "Unknown") + "  \n";
+                md += "**Zodiac:** " + (meta.zodiac_type || "Tropical").charAt(0).toUpperCase() + (meta.zodiac_type || "tropical").slice(1) + "  \n";
+                md += "**House System:** " + (meta.house_system || "Placidus").charAt(0).toUpperCase() + (meta.house_system || "placidus").slice(1) + "  \n\n";
+                md += "---\n\n";
+
+                if (lastChartData.ascendant) {
+                    md += "## Big Three\n\n";
+                    if (lastChartData.planets && lastChartData.planets.Sun) {
+                        md += "- **Sun:** " + lastChartData.planets.Sun.sign + " at " + formatDegree(lastChartData.planets.Sun.degree) + "\n";
+                    }
+                    if (lastChartData.planets && lastChartData.planets.Moon) {
+                        md += "- **Moon:** " + lastChartData.planets.Moon.sign + " at " + formatDegree(lastChartData.planets.Moon.degree) + "\n";
+                    }
+                    md += "- **Ascendant:** " + (lastChartData.ascendant.sign || "") + " at " + formatDegree(lastChartData.ascendant.degree) + "\n\n";
+                }
+
+                md += "## Planetary Positions\n\n";
+                md += "| Planet | Sign | Degree |\n";
+                md += "|--------|------|--------|\n";
+                if (lastChartData.planets) {
+                    var planetKeys = Object.keys(lastChartData.planets);
+                    for (var i = 0; i < planetKeys.length; i++) {
+                        var p = lastChartData.planets[planetKeys[i]];
+                        md += "| " + planetKeys[i] + " | " + (p.sign || "") + " | " + formatDegree(p.degree) + " |\n";
+                    }
+                }
+                md += "\n";
+
+                md += "## Major Aspects\n\n";
+                md += "| Planet 1 | Aspect | Planet 2 | Orb |\n";
+                md += "|----------|--------|----------|-----|\n";
+                if (lastChartData.aspects) {
+                    var sortedAspects = lastChartData.aspects.slice().sort(function(a, b) { return a.orb - b.orb; });
+                    for (var j = 0; j < Math.min(15, sortedAspects.length); j++) {
+                        var a = sortedAspects[j];
+                        md += "| " + a.planet1 + " | " + a.aspect + " | " + a.planet2 + " | " + a.orb.toFixed(1) + "° |\n";
+                    }
+                }
+                md += "\n---\n\n";
+
+                var interpretation = document.getElementById("interpretation");
+                if (interpretation && interpretation.innerText.trim()) {
+                    md += "## Interpretation\n\n";
+                    md += interpretation.innerText.trim() + "\n\n";
+                }
+
+                var conversation = document.getElementById("conversation-history");
+                if (conversation && conversation.innerText.trim()) {
+                    md += "---\n\n## Follow-up Discussion\n\n";
+                    var items = conversation.querySelectorAll(".conversation-item");
+                    for (var k = 0; k < items.length; k++) {
+                        var qEl = items[k].querySelector(".conversation-question");
+                        var aEl = items[k].querySelector(".conversation-answer");
+                        if (qEl) {
+                            md += "### Q: " + qEl.innerText.replace(/^[^\s]+\s*/, "") + "\n\n";
+                        }
+                        if (aEl) {
+                            md += aEl.innerText.trim() + "\n\n";
+                        }
+                    }
+                }
+
+                var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+                showToast("Markdown exported", 2000);
+            }
+
+            function formatDegree(deg) {
+                if (deg == null) return "—";
+                var d = Math.floor(deg);
+                var m = Math.floor((deg % 1) * 60);
+                return d + "°" + (m < 10 ? "0" : "") + m + "'";
+            }
         </script>
     </body>
 </html>
