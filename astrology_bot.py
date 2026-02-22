@@ -235,6 +235,15 @@ class AstrologyBot(fp.PoeBot):
                     sidereal_mode=data.get("sidereal_mode", "lahiri"),
                 )
 
+                # Get model selection (default to env var or Kimi-K2.5)
+                model = data.get("model", poe_model)
+                chart["meta"]["model"] = model
+
+                # Get optional initial context/question
+                initial_context = data.get("initial_context", "").strip()
+                if initial_context:
+                    chart["meta"]["initial_context"] = initial_context
+
                 # Check for transit date
                 transit_data = data.get("transit_date")
                 if transit_data:
@@ -251,7 +260,9 @@ class AstrologyBot(fp.PoeBot):
                 yield fp.PartialResponse(text=chart_json + "\n---\n")
 
                 # Stream the interpretation
-                async for chunk in self.get_interpretation(chart, request):
+                async for chunk in self.get_interpretation(
+                    chart, request, model, initial_context
+                ):
                     yield chunk
                 return
 
@@ -259,8 +270,10 @@ class AstrologyBot(fp.PoeBot):
                 # Handle follow-up questions with chart context
                 chart_data = data.get("chart_data")
                 question = data.get("question", "")
+                # Use the same model from the original chart calculation
+                model = chart_data.get("meta", {}).get("model") if chart_data else None
                 async for chunk in self.get_follow_up_response(
-                    chart_data, question, request
+                    chart_data, question, request, model
                 ):
                     yield chunk
                 return
@@ -300,19 +313,25 @@ class AstrologyBot(fp.PoeBot):
         )
 
     async def get_interpretation(
-        self, chart: dict, request: fp.QueryRequest
+        self,
+        chart: dict,
+        request: fp.QueryRequest,
+        model: str = None,
+        initial_context: str = None,
     ) -> AsyncIterable[fp.PartialResponse]:
         """
-        Get LLM interpretation of the chart using Claude.
+        Get LLM interpretation of the chart using the selected model.
 
         Args:
             chart: The calculated chart data
             request: The original query request (for access_key)
+            model: The Poe model identifier to use (defaults to poe_model)
+            initial_context: Optional user-provided focus or question
 
         Yields:
             PartialResponse chunks from the LLM
         """
-        prompt = self.build_interpretation_prompt(chart)
+        prompt = self.build_interpretation_prompt(chart, initial_context)
 
         # Create a new request with the interpretation prompt
         # We need to create a new QueryRequest with just the prompt
@@ -326,11 +345,14 @@ class AstrologyBot(fp.PoeBot):
             access_key=request.access_key,
         )
 
-        # Stream from Claude
+        # Use selected model or fall back to default
+        selected_model = model or poe_model
+
+        # Stream from selected model
         try:
             async for msg in fp.stream_request(
                 new_request,
-                poe_model,
+                selected_model,
                 request.access_key,
             ):
                 yield msg
@@ -340,7 +362,11 @@ class AstrologyBot(fp.PoeBot):
             )
 
     async def get_follow_up_response(
-        self, chart_data: dict, question: str, request: fp.QueryRequest
+        self,
+        chart_data: dict,
+        question: str,
+        request: fp.QueryRequest,
+        model: str = None,
     ) -> AsyncIterable[fp.PartialResponse]:
         """
         Handle follow-up questions about a chart.
@@ -349,6 +375,7 @@ class AstrologyBot(fp.PoeBot):
             chart_data: The chart context
             question: The follow-up question
             request: The original query request
+            model: The Poe model identifier to use (defaults to poe_model)
 
         Yields:
             PartialResponse chunks from the LLM
@@ -360,7 +387,15 @@ Chart Data:
 
 User's Question: {question}
 
-Provide a thoughtful, specific answer based on the chart data. Be warm and insightful while staying grounded in the actual astrological placements."""
+Provide a thoughtful, specific answer based on the chart data. Be warm and insightful while staying grounded in the actual astrological placements.
+
+At the very end, include a **Suggested questions:** section with 2-3 brief prompts for areas to explore next. These appear as clickable buttons.
+
+Format each as a direct question like:
+- "Tell me about my Moon in the 4th house"
+- "What does the Saturn-Pluto square mean for my career?"
+
+Keep them descriptive, specific to this chart, and build on the conversation so far. One line each, numbered list."""
 
         # Create a new request with the follow-up prompt
         new_request = fp.QueryRequest(
@@ -373,22 +408,28 @@ Provide a thoughtful, specific answer based on the chart data. Be warm and insig
             access_key=request.access_key,
         )
 
+        # Use selected model or fall back to default
+        selected_model = model or poe_model
+
         try:
             async for msg in fp.stream_request(
                 new_request,
-                poe_model,
+                selected_model,
                 request.access_key,
             ):
                 yield msg
         except Exception as e:
             yield fp.PartialResponse(text=f"\n\n*[Error: {str(e)}]*")
 
-    def build_interpretation_prompt(self, chart: dict) -> str:
+    def build_interpretation_prompt(
+        self, chart: dict, initial_context: str = None
+    ) -> str:
         """
         Build the interpretation prompt for the LLM.
 
         Args:
             chart: The calculated chart data
+            initial_context: Optional user-provided focus or question
 
         Returns:
             Formatted prompt string
@@ -445,8 +486,13 @@ Provide a thoughtful, specific answer based on the chart data. Be warm and insig
             mode_name = SIDEREAL_MODE_NAMES.get(sidereal_mode, sidereal_mode.title())
             zodiac_info = f"Sidereal zodiac ({mode_name} ayanamsa)"
 
-        return f"""You are an expert Western astrologer with deep knowledge of natal chart interpretation. Provide a warm, nuanced, psychologically insightful reading.
+        # Add initial context section if provided
+        context_instruction = ""
+        if initial_context:
+            context_instruction = f"\n\n**User's Focus/Question:**\n{initial_context}\n\n**Important:** The user has provided specific context or a question above. Make sure your interpretation directly addresses their focus while still providing a complete chart reading."
 
+        return f"""You are an expert Western astrologer with deep knowledge of natal chart interpretation. Provide a warm, nuanced, psychologically insightful reading.
+{context_instruction}
 **Birth Information:**
 • Date: {chart["meta"]["date"]}
 • Time: {chart["meta"]["time"]}
@@ -457,8 +503,8 @@ Provide a thoughtful, specific answer based on the chart data. Be warm and insig
 **Key Placements:**
 • Sun Sign: {chart["planets"]["Sun"]["sign"]}
 • Moon Sign: {chart["planets"]["Moon"]["sign"]}
-• Ascendant (Rising): {chart["ascendant"]["sign"]}
-• Midheaven: {chart["midheaven"]["sign"]}
+• Ascendant (Rising): {chart["ascendant"]["sign"]} at {chart["ascendant"]["degree"]}°
+• Midheaven: {chart["midheaven"]["sign"]} at {chart["midheaven"]["degree"]}°
 
 **All Planetary Positions:**
 {planets_text}
@@ -479,7 +525,16 @@ Provide a structured reading covering:
 6. **Major Aspects** - Interpret the most significant aspects (tightest orbs)
 7. **House Emphases** - Any notable house patterns
 
-Be specific to these exact placements. Avoid generic filler. Use warm, accessible language while maintaining astrological depth. Format with clear headers using **bold**."""
+Be specific to these exact placements. Avoid generic filler. Use warm, accessible language while maintaining astrological depth. Format with clear headers using **bold**.
+
+At the very end, include a **Suggested questions:** section with 2-3 brief prompts for areas to explore. These appear as clickable buttons for the user.
+
+Format each as a direct question like:
+- "Tell me about my Moon in the 4th house"
+- "What does the Saturn-Pluto square mean for my career?"
+- "How does my Venus-Mars conjunction affect relationships?"
+
+Keep them descriptive and specific to this chart. Avoid overly personal or prescriptive phrasing. One line each, numbered list (1. 2. 3.)."""
 
 
 # Modal deployment configuration

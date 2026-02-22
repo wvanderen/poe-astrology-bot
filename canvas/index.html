@@ -142,7 +142,8 @@
             input[type="text"],
             input[type="date"],
             input[type="time"],
-            select {
+            select,
+            textarea {
                 padding: 12px 14px;
                 border: 1px solid var(--border);
                 border-radius: 10px;
@@ -156,13 +157,15 @@
             }
 
             input:focus,
-            select:focus {
+            select:focus,
+            textarea:focus {
                 outline: none;
                 border-color: var(--gold);
                 box-shadow: 0 0 0 3px var(--gold-dim);
             }
 
-            input::placeholder {
+            input::placeholder,
+            textarea::placeholder {
                 color: var(--text-muted);
             }
 
@@ -456,6 +459,46 @@
                 }
             }
 
+            /* Thinking badge */
+            .thinking-badge {
+                margin-left: auto;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--gold);
+                background: var(--gold-dim);
+                padding: 4px 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                animation: pulse-thinking 1.5s ease-in-out infinite;
+            }
+
+            .thinking-badge i {
+                font-size: 0.7rem;
+                animation: brain-pulse 1.2s ease-in-out infinite;
+            }
+
+            @keyframes pulse-thinking {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+
+            @keyframes brain-pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.2);
+                }
+            }
+
             /* Planet Table */
             .planet-table {
                 width: 100%;
@@ -579,6 +622,180 @@
                 border-color: var(--gold);
             }
 
+            /* Follow-up section */
+            .follow-up-section {
+                margin-top: 24px;
+                display: none;
+            }
+
+            .follow-up-section.visible {
+                display: block;
+            }
+
+            .conversation-history {
+                margin-bottom: 16px;
+            }
+
+            .conversation-item {
+                margin-bottom: 20px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .conversation-item:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .conversation-question {
+                font-size: 0.9rem;
+                color: var(--gold-light);
+                margin-bottom: 8px;
+            }
+
+            .conversation-question i {
+                margin-right: 6px;
+                opacity: 0.7;
+            }
+
+            .conversation-answer {
+                color: var(--text-primary);
+                line-height: 1.75;
+                font-size: 0.95rem;
+            }
+
+            .conversation-answer h1,
+            .conversation-answer h2,
+            .conversation-answer h3 {
+                font-family: "Cormorant Garamond", serif;
+                color: var(--gold);
+                margin: 16px 0 6px;
+            }
+
+            .conversation-answer h1 { font-size: 1.3rem; }
+            .conversation-answer h2 { font-size: 1.15rem; }
+            .conversation-answer h3 { font-size: 1rem; }
+
+            .conversation-answer p {
+                margin-bottom: 10px;
+            }
+
+            .conversation-answer strong {
+                color: var(--gold-light);
+            }
+
+            .conversation-answer ul,
+            .conversation-answer ol {
+                margin: 6px 0 10px 18px;
+            }
+
+            .conversation-answer li {
+                margin-bottom: 3px;
+            }
+
+            .follow-up-input-group {
+                display: flex;
+                gap: 12px;
+                margin-top: 16px;
+            }
+
+            .follow-up-input-group textarea {
+                flex: 1;
+                min-height: 60px;
+                resize: vertical;
+            }
+
+            .btn-follow-up {
+                padding: 12px 20px;
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+                color: var(--bg-deep);
+                background: linear-gradient(135deg, var(--gold), #b8912e);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+                white-space: nowrap;
+                align-self: flex-start;
+            }
+
+            .btn-follow-up:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(212, 168, 67, 0.3);
+            }
+
+            .btn-follow-up:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            /* Follow-up thinking indicator */
+            .follow-up-thinking {
+                display: none;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+                padding: 10px 14px;
+                background: var(--gold-dim);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--gold);
+                font-size: 0.85rem;
+            }
+
+            .follow-up-thinking.visible {
+                display: flex;
+            }
+
+            .follow-up-thinking i {
+                animation: pulse-thinking 1.5s ease-in-out infinite;
+            }
+
+            /* Suggested questions */
+            .suggested-questions {
+                margin-top: 16px;
+                display: none;
+            }
+
+            .suggested-questions.visible {
+                display: block;
+            }
+
+            .suggested-questions-title {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                margin-bottom: 8px;
+            }
+
+            .suggested-question-btn {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 10px 14px;
+                margin-bottom: 8px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s;
+            }
+
+            .suggested-question-btn:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--gold);
+            }
+
+            .suggested-question-btn i {
+                color: var(--gold);
+                margin-right: 8px;
+                font-size: 0.8rem;
+            }
+
             /* Responsive */
             @media (max-width: 640px) {
                 .form-grid {
@@ -680,6 +897,34 @@
                             <option value="jyotish">Jyotish (J2000)</option>
                         </select>
                     </div>
+                    <div class="form-group full-width">
+                        <label for="model-select">Interpretation Model</label>
+                        <select id="model-select">
+                            <option value="Kimi-K2-Thinking" selected>Kimi K2 Thinking (Default)</option>
+                            <option value="Kimi-K2.5">Kimi K2.5</option>
+                            <option value="Kimi-K2">Kimi K2</option>
+                            <option value="Claude-Opus-4.6">Claude Opus 4.6</option>
+                            <option value="Claude-Sonnet-4.6">Claude Sonnet 4.6</option>
+                            <option value="Claude-Haiku-4.5">Claude Haiku 4.5</option>
+                            <option value="GPT-5.2-Thinking">GPT-5.2 Thinking</option>
+                            <option value="GPT-5.2-Instant">GPT-5.2 Instant</option>
+                            <option value="GPT-4o">GPT-4o</option>
+                            <option value="Gemini-3.1">Gemini 3.1</option>
+                            <option value="Gemini-3-Pro">Gemini 3 Pro</option>
+                            <option value="Gemini-3-Flash">Gemini 3 Flash</option>
+                            <option value="MiniMax-M2.5">MiniMax M2.5</option>
+                            <option value="GLM-5">GLM-5</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="initial-context">Focus or Question <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+                        <textarea
+                            id="initial-context"
+                            rows="2"
+                            placeholder="e.g. 'Focus on career' or 'What does my chart say about relationships?'"
+                            style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.35); color: var(--text-primary); font-family: 'Nunito Sans', sans-serif; font-size: 16px; resize: vertical; min-height: 48px; transition: border-color 0.25s, box-shadow 0.25s;"
+                        ></textarea>
+                    </div>
                 </div>
                 <button
                     class="btn-primary"
@@ -734,8 +979,34 @@
                     >
                         <div class="card-title">
                             <i class="fa-solid fa-scroll"></i> Interpretation
+                            <span class="thinking-badge" id="thinking-badge" style="display: none">
+                                <i class="fa-solid fa-brain"></i> Thinking
+                            </span>
                         </div>
                         <div class="interpretation-content" id="interpretation"></div>
+                        
+                        <div class="conversation-history" id="conversation-history"></div>
+                        
+                        <div class="follow-up-section" id="follow-up-section">
+                            <div class="suggested-questions" id="suggested-questions">
+                                <div class="suggested-questions-title">Suggested questions:</div>
+                            </div>
+                            
+                            <div class="follow-up-thinking" id="follow-up-thinking">
+                                <i class="fa-solid fa-brain"></i> Thinking...
+                            </div>
+                            
+                            <div class="follow-up-input-group">
+                                <textarea
+                                    id="follow-up-input"
+                                    rows="2"
+                                    placeholder="Ask a follow-up question about your chart..."
+                                ></textarea>
+                                <button class="btn-follow-up" id="follow-up-btn" onclick="submitFollowUp()">
+                                    <i class="fa-solid fa-paper-plane"></i> Ask
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -752,6 +1023,11 @@
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
         <script>
+            /* ── State ── */
+            var lastChartData = null;
+            var conversationHistory = [];
+            var suggestedQuestions = [];
+
             /* ── Glyph Maps ── */
             const SIGN_GLYPHS = {
                 Aries: "\u2648",
@@ -839,6 +1115,7 @@
                         5000,
                     );
                     document.getElementById("calculate-btn").disabled = false;
+                    document.getElementById("follow-up-btn").disabled = false;
                     return;
                 }
 
@@ -853,6 +1130,8 @@
                     renderChartWheel(chartData);
                     renderPlanetTable(chartData);
                     renderAspectMatrix(chartData);
+                    /* Store chart data for follow-ups */
+                    lastChartData = chartData;
                 }
 
                 /* Show any textual interpretation */
@@ -860,14 +1139,17 @@
                 if (textPart.trim()) {
                     var interpCard = document.getElementById("interpretation-card");
                     var interpEl = document.getElementById("interpretation");
+                    var thinkingBadge = document.getElementById("thinking-badge");
                     interpCard.style.display = "";
 
                     if (msg.status === "incomplete") {
                         interpEl.innerHTML = marked.parse(textPart);
                         interpEl.classList.add("streaming-cursor");
+                        if (thinkingBadge) thinkingBadge.style.display = "inline-flex";
                     } else {
                         interpEl.innerHTML = marked.parse(textPart);
                         interpEl.classList.remove("streaming-cursor");
+                        if (thinkingBadge) thinkingBadge.style.display = "none";
                     }
                 }
 
@@ -875,6 +1157,24 @@
                     document.getElementById("loading").classList.remove("visible");
                     document.getElementById("results").classList.add("visible");
                     document.getElementById("calculate-btn").disabled = false;
+                    document.getElementById("follow-up-btn").disabled = false;
+
+                    /* Hide thinking badge when complete */
+                    var thinkingBadgeComplete = document.getElementById("thinking-badge");
+                    if (thinkingBadgeComplete) thinkingBadgeComplete.style.display = "none";
+
+                    /* Show follow-up section */
+                    if (lastChartData) {
+                        document.getElementById("follow-up-section").classList.add("visible");
+                    }
+
+                    /* Extract and display suggested questions, strip from interpretation */
+                    var extracted = extractSuggestedQuestions(textPart);
+                    if (extracted.questions.length > 0) {
+                        renderSuggestedQuestions(extracted.questions);
+                        var interpEl = document.getElementById("interpretation");
+                        interpEl.innerHTML = marked.parse(extracted.cleanText);
+                    }
 
                     /* If no chart data was found at all, still show the text */
                     if (!chartData) {
@@ -899,6 +1199,7 @@
                 var houseSystem = document.getElementById("house-system").value;
                 var zodiacType = document.getElementById("zodiac-type").value;
                 var siderealMode = document.getElementById("sidereal-mode").value;
+                var initialContext = document.getElementById("initial-context").value.trim();
 
                 if (!date || !time || !city) {
                     showToast("Please fill in all fields");
@@ -913,6 +1214,13 @@
                 document.getElementById("interpretation").innerHTML = "";
                 document.getElementById("chart-card").style.display = "";
                 document.getElementById("planets-card").style.display = "";
+                
+                /* Reset conversation */
+                conversationHistory = [];
+                document.getElementById("conversation-history").innerHTML = "";
+                document.getElementById("follow-up-section").classList.remove("visible");
+
+                var model = document.getElementById("model-select").value;
 
                 var birthData = {
                     type: "birth_data",
@@ -921,10 +1229,15 @@
                     city: city,
                     house_system: houseSystem,
                     zodiac_type: zodiacType,
+                    model: model,
                 };
-                
+
                 if (zodiacType === "sidereal") {
                     birthData.sidereal_mode = siderealMode;
+                }
+                
+                if (initialContext) {
+                    birthData.initial_context = initialContext;
                 }
 
                 try {
@@ -956,7 +1269,207 @@
                 document.getElementById("aspect-matrix").innerHTML = "";
                 document.getElementById("interpretation").innerHTML = "";
                 document.getElementById("interpretation-card").style.display = "none";
+                document.getElementById("conversation-history").innerHTML = "";
+                document.getElementById("follow-up-section").classList.remove("visible");
+                document.getElementById("follow-up-input").value = "";
+                document.getElementById("suggested-questions").classList.remove("visible");
+                document.getElementById("follow-up-thinking").classList.remove("visible");
+                lastChartData = null;
+                conversationHistory = [];
+                suggestedQuestions = [];
                 window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            /* ── Submit follow-up question ── */
+            async function submitFollowUp() {
+                var input = document.getElementById("follow-up-input");
+                var question = input.value.trim();
+                
+                if (!question || !lastChartData) {
+                    showToast("Please enter a question");
+                    return;
+                }
+                
+                /* Disable inputs */
+                document.getElementById("follow-up-btn").disabled = true;
+                input.disabled = true;
+                
+                /* Hide suggested questions while processing */
+                document.getElementById("suggested-questions").classList.remove("visible");
+                
+                /* Add question to conversation history immediately */
+                addToConversation(question, "", true);
+                input.value = "";
+                
+                /* Show follow-up thinking indicator */
+                var thinkingEl = document.getElementById("follow-up-thinking");
+                if (thinkingEl) thinkingEl.classList.add("visible");
+                
+                var followUpData = {
+                    type: "follow_up",
+                    chart_data: lastChartData,
+                    question: question
+                };
+                
+                try {
+                    await window.Poe.sendUserMessage(
+                        "@PoeAstrologyBot " + JSON.stringify(followUpData),
+                        {
+                            handler: "follow-up-handler",
+                            stream: true,
+                            openChat: false,
+                            parameters: {},
+                        }
+                    );
+                } catch (err) {
+                    document.getElementById("follow-up-btn").disabled = false;
+                    input.disabled = false;
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    var errMsg = err && err.errorType
+                        ? "Could not send message (" + err.errorType + ")"
+                        : "Could not send message. Please try again.";
+                    showToast(errMsg, 5000);
+                }
+            }
+            
+            /* ── Add item to conversation history ── */
+            function addToConversation(question, answer, isStreaming) {
+                var container = document.getElementById("conversation-history");
+                var itemId = "conv-" + conversationHistory.length;
+                
+                conversationHistory.push({ question: question, answer: answer });
+                
+                var itemHtml = '<div class="conversation-item" id="' + itemId + '">' +
+                    '<div class="conversation-question"><i class="fa-solid fa-comment"></i>' + escapeHtml(question) + '</div>' +
+                    '<div class="conversation-answer' + (isStreaming ? ' streaming-cursor' : '') + '">' + (answer ? marked.parse(answer) : '') + '</div>' +
+                    '</div>';
+                
+                container.insertAdjacentHTML('beforeend', itemHtml);
+                return itemId;
+            }
+            
+            /* ── Update last conversation answer ── */
+            function updateLastConversationAnswer(answer, isComplete) {
+                if (conversationHistory.length === 0) return;
+                
+                var lastItem = conversationHistory[conversationHistory.length - 1];
+                lastItem.answer = answer;
+                
+                var itemId = "conv-" + (conversationHistory.length - 1);
+                var answerEl = document.querySelector("#" + itemId + " .conversation-answer");
+                
+                if (answerEl) {
+                    answerEl.innerHTML = marked.parse(answer);
+                    if (isComplete) {
+                        answerEl.classList.remove("streaming-cursor");
+                    } else {
+                        answerEl.classList.add("streaming-cursor");
+                    }
+                }
+            }
+            
+            function escapeHtml(text) {
+                var div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            /* ── Register follow-up handler ── */
+            window.Poe.registerHandler("follow-up-handler", function (result) {
+                var msg = result.responses[0];
+                if (!msg) return;
+                
+                var thinkingEl = document.getElementById("follow-up-thinking");
+                
+                if (msg.status === "error") {
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    document.getElementById("follow-up-btn").disabled = false;
+                    document.getElementById("follow-up-input").disabled = false;
+                    showToast("Error: " + (msg.statusText || "Unknown error"), 5000);
+                    return;
+                }
+                
+                var content = msg.content || "";
+                var textPart = stripJsonBlock(content);
+                
+                if (msg.status === "incomplete") {
+                    updateLastConversationAnswer(textPart, false);
+                    if (thinkingEl) thinkingEl.classList.add("visible");
+                } else if (msg.status === "complete") {
+                    if (thinkingEl) thinkingEl.classList.remove("visible");
+                    document.getElementById("follow-up-btn").disabled = false;
+                    document.getElementById("follow-up-input").disabled = false;
+                    
+                    /* Extract questions and update with clean text */
+                    var extracted = extractSuggestedQuestions(textPart);
+                    updateLastConversationAnswer(extracted.cleanText, true);
+                    
+                    if (extracted.questions.length > 0) {
+                        renderSuggestedQuestions(extracted.questions);
+                    }
+                }
+            });
+
+            /* ── Extract suggested questions from text and strip them ── */
+            function extractSuggestedQuestions(text) {
+                var questions = [];
+                var cleanText = text;
+                
+                var sectionPattern = /\*\*Suggested questions?:?\*\*\s*([\s\S]*?)(?=\n\n\n|\n\*\*[A-Z]|$)/i;
+                var match = text.match(sectionPattern);
+                
+                if (match) {
+                    var fullMatch = match[0];
+                    var section = match[1];
+                    
+                    var lines = section.split('\n');
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        var qMatch = line.match(/^\d+\.\s*\*{0,2}(.+?)\*{0,2}\s*$/);
+                        if (qMatch) {
+                            var q = qMatch[1].trim();
+                            if (q && questions.length < 3) {
+                                questions.push(q);
+                            }
+                        } else if (line.length > 10 && questions.length < 3) {
+                            questions.push(line);
+                        }
+                    }
+                    
+                    cleanText = text.replace(fullMatch, '').trim();
+                }
+                
+                return { questions: questions, cleanText: cleanText };
+            }
+
+            /* ── Render suggested questions as buttons ── */
+            function renderSuggestedQuestions(questions) {
+                var container = document.getElementById("suggested-questions");
+                if (!questions || questions.length === 0) {
+                    container.classList.remove("visible");
+                    return;
+                }
+                
+                suggestedQuestions = questions;
+                
+                var html = '<div class="suggested-questions-title">Suggested questions:</div>';
+                for (var i = 0; i < questions.length; i++) {
+                    html += '<button class="suggested-question-btn" onclick="useSuggestedQuestion(' + i + ')">' +
+                        '<i class="fa-solid fa-lightbulb"></i>' + escapeHtml(questions[i]) + '</button>';
+                }
+                
+                container.innerHTML = html;
+                container.classList.add("visible");
+            }
+
+            /* ── Use a suggested question ── */
+            function useSuggestedQuestion(index) {
+                if (index < 0 || index >= suggestedQuestions.length) return;
+                var input = document.getElementById("follow-up-input");
+                input.value = suggestedQuestions[index];
+                input.focus();
             }
 
             /* ── JSON extraction ── */
@@ -1130,22 +1643,16 @@
                 }
 
                 /* House cusps - extending from center all the way to sign inner circle */
-                var angularHouses = [1, 4, 7, 10];
-                
                 for (var h = 1; h <= 12; h++) {
                     var house = chart.houses && chart.houses["House " + h];
                     if (!house) continue;
                     
                     var ha = lonToAngle(house.longitude);
-                    var isAngular = angularHouses.indexOf(h) !== -1;
                     var hp2 = polar(ha, signInnerR);
                     var hp1 = polar(ha, 5);
                     
                     lines.push(
-                        '<line x1="' + hp1.x + '" y1="' + hp1.y + '" x2="' + hp2.x + '" y2="' + hp2.y + '" stroke="' +
-                            (isAngular ? "var(--gold)" : "var(--text-muted)") +
-                            '" stroke-width="' + (isAngular ? 2 : 0.8) + '"' +
-                            (isAngular ? "" : ' opacity="0.4"') + "/>",
+                        '<line x1="' + hp1.x + '" y1="' + hp1.y + '" x2="' + hp2.x + '" y2="' + hp2.y + '" stroke="var(--text-muted)" stroke-width="0.8" opacity="0.4"/>',
                     );
                 }
 
@@ -1417,6 +1924,16 @@
                 .addEventListener("keydown", function (e) {
                     if (e.key === "Enter") {
                         submitBirthData();
+                    }
+                });
+
+            /* ── Allow Enter key to submit follow-up ── */
+            document
+                .getElementById("follow-up-input")
+                .addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        submitFollowUp();
                     }
                 });
 
